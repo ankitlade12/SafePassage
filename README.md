@@ -10,6 +10,8 @@
 ## Quick Highlights
 
 - ** Multi-Currency Exit Fund**: $5,000+ emergency fund with 4 payout methods (crypto, wire, cash, mobile)
+- ** 🤖 Smart Liquidity Oracle**: Algorithmic scoring engine that ranks payout methods by speed & safety
+- ** Network Simulation**: Realistic simulation of financial network outages (e.g., "Banks Closed")
 - ** Real-Time Risk Monitoring**: Live integration with GDELT, USGS, and State Department alerts
 - ** Interactive Maps**: Visualize your location, fallback destinations, and nearby threats
 - ** Crisis Scenarios**: Pre-built emergency simulations for 5 global hotspots
@@ -205,6 +207,24 @@ Safe-Passage provides:
 2. **Mobile Money** - 30 minutes
 3. **Cash Pickup** - 2-4 hours
 4. **Wire Transfer** - 2-3 days (most reliable)
+
+## Smart Financial Intelligence
+
+The **Liquidity Oracle** treats "getting money out" as a routing problem. It doesn't just list methods; it ranks them.
+
+### How it Works
+1.  **Context Awareness**: Checks your `Risk Level` (0-10) and `Location`.
+2.  **Network Logic**: Simulates real-world constraints:
+    *   *High Risk*: Banks might close (Offline). Cash agents might be scarce (Restricted).
+    *   *Normal*: All systems green.
+3.  **Scoring Engine**:
+    *   Calculates a **Match Score (0-100%)** for each method.
+    *   *Crisis Mode*: Weights **Speed** (50%) & **Reliability** (40%) over Cost.
+    *   *Normal Mode*: Weights **Cost** (40%) over Speed.
+
+**Example**:
+*   *Scenario*: Civil Unrest in City X.
+*   *Oracle Result*: **Crypto (98% Match)** is recommended because local banks are "OFFLINE" and Cash Pickup is "RESTRICTED".
 
 ## Quick Start
 
@@ -405,10 +425,12 @@ visaverse/
 ├── core/                       # Core Business Logic
 │   ├── risk_monitor.py         # Risk assessment engine
 │   ├── payout_simulator.py     # Payment simulation
+│   ├── liquidity_oracle.py     # 🤖 Smart routing logic
 │   ├── exit_playbook.py        # Checklist generation
 │   └── crisis_scenarios.py     # Crisis simulations
 ├── ui/                         # User Interface
 │   ├── dashboard.py            # Main dashboard components
+│   ├── smart_payout.py         # 🤖 AI Payout Cards
 │   ├── analytics.py            # Analytics charts
 │   ├── components.py           # Reusable widgets (QR, Maps)
 │   ├── guided_tour.py          # Onboarding flow
