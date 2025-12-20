@@ -70,23 +70,24 @@ UI[" USER INTERFACE<br/>Streamlit Multi-Tab<br/>Dashboard | Emergency | Trip Pla
 APP[" APPLICATION<br/>main.py<br/>Session State | UI Rendering | Tab Navigation"]
 
 subgraph "CORE SERVICES"
-SVC1["risk_monitor<br/>Risk Assessment"]
-SVC2["payout_simulator<br/>Fund Distribution"]
-SVC3["exit_playbook<br/>Checklist Generator"]
-SVC4["real_data_integration<br/>API Orchestration"]
+SVC1["core/risk_monitor.py<br/>Risk Assessment"]
+SVC2["core/payout_simulator.py<br/>Fund Distribution"]
+SVC3["core/exit_playbook.py<br/>Checklist Generator"]
+SVC4["api/real_data_integration.py<br/>API Orchestration"]
 end
 
-subgraph "ADVANCED FEATURES"
-ADV1["enhanced_analytics<br/>Heatmaps & Trends"]
-ADV2["advanced_features<br/>QR Code & Alerts"]
-ADV3["enhanced_ui<br/>Trip Planner"]
-ADV4["visual_enhancements<br/>Maps & Gauges"]
+subgraph "UI LAYER"
+UI1["ui/dashboard.py<br/>Main Dashboard"]
+UI2["ui/analytics.py<br/>Analytics"]
+UI3["ui/components.py<br/>Visual Elements"]
+UI4["ui/guided_tour.py<br/>Onboarding"]
 end
 
-subgraph "DATA LAYER"
+subgraph "DATA & UTILS"
 DATA1["models.py<br/>Data Models"]
-DATA2["geocoding.py<br/>Coordinates"]
-DATA3["crisis_scenarios.py<br/>Simulations"]
+UTIL1["utils/export.py<br/>Export Manager"]
+UTIL2["utils/currency.py<br/>Currency Manager"]
+API1["api/geocoding.py<br/>Geolocation"]
 end
 
 subgraph "EXTERNAL APIs"
@@ -136,16 +137,16 @@ style EXT3 fill:#ffe0b2,stroke:#e64a19,stroke-width:2px
 
 ### Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Frontend** | Streamlit 1.28+ | Interactive multi-tab web UI |
-| **Backend** | Python 3.9+ | Application logic & services |
-| **Data Viz** | Plotly 5.17+ | Interactive maps, charts, gauges |
-| **APIs** | GDELT, USGS, State Dept | Real-time risk data |
-| **Validation** | Pydantic | Data models & validation |
-| **QR Codes** | qrcode + Pillow | Emergency contact sharing |
-| **PDF Export** | ReportLab | Checklist downloads |
-| **Package Manager** | uv | Fast dependency management |
+| Layer               | Technology              | Purpose                          |
+| ------------------- | ----------------------- | -------------------------------- |
+| **Frontend**        | Streamlit 1.28+         | Interactive multi-tab web UI     |
+| **Backend**         | Python 3.9+             | Application logic & services     |
+| **Data Viz**        | Plotly 5.17+            | Interactive maps, charts, gauges |
+| **APIs**            | GDELT, USGS, State Dept | Real-time risk data              |
+| **Validation**      | Pydantic                | Data models & validation         |
+| **QR Codes**        | qrcode + Pillow         | Emergency contact sharing        |
+| **PDF Export**      | ReportLab               | Checklist downloads              |
+| **Package Manager** | uv                      | Fast dependency management       |
 
 ## What is Safe-Passage?
 
@@ -399,25 +400,27 @@ User->>SafePassage: Book flight to City B
 
 ```
 visaverse/
-main.py # Main Streamlit app (560+ lines)
-models.py # Data models (User, ExitFund, Location, etc.)
-risk_monitor.py # Core risk assessment logic
-real_data_integration.py # API integrations (GDELT, USGS, State Dept)
-payout_simulator.py # Emergency fund distribution
-exit_playbook.py # Checklist & route generation
-enhanced_analytics.py # Analytics dashboard with heatmaps
-enhanced_ui.py # Trip planner & settings UI
-visual_enhancements.py # Maps, gauges, charts
-crisis_scenarios.py # Pre-built crisis simulations
-advanced_features.py # QR code, alerts, theme
-advanced_features_part2.py # Export, comparison, currency
-export_features.py # PDF/JSON export functionality
-guided_tour.py # User onboarding
-geocoding.py # Location coordinate lookup
-pyproject.toml # Project configuration & dependencies
-uv.lock # Locked dependencies
-.gitignore # Git ignore rules
-README.md # This file
+├── main.py                     # Entry point (Streamlit app)
+├── models.py                   # Shared data models
+├── core/                       # Core Business Logic
+│   ├── risk_monitor.py         # Risk assessment engine
+│   ├── payout_simulator.py     # Payment simulation
+│   ├── exit_playbook.py        # Checklist generation
+│   └── crisis_scenarios.py     # Crisis simulations
+├── ui/                         # User Interface
+│   ├── dashboard.py            # Main dashboard components
+│   ├── analytics.py            # Analytics charts
+│   ├── components.py           # Reusable widgets (QR, Maps)
+│   ├── guided_tour.py          # Onboarding flow
+│   └── theme.py                # Visual theming
+├── api/                        # External Integrations
+│   ├── real_data_integration.py # GDELT/USGS APIs
+│   └── geocoding.py            # Coordinate lookup
+├── utils/                      # Utilities
+│   ├── export.py               # PDF/JSON export
+│   └── currency.py             # Currency conversion
+├── pyproject.toml              # Project dependencies
+└── README.md                   # Documentation
 ```
 
 ## Use Cases
