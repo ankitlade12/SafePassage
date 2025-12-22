@@ -8,13 +8,13 @@ import streamlit as st
 
 class GuidedTour:
     """Manage guided tour for new users"""
-    
+
     @staticmethod
     def show_welcome():
         """Show welcome message"""
-        if 'tour_completed' not in st.session_state:
+        if "tour_completed" not in st.session_state:
             st.session_state.tour_completed = False
-        
+
         if not st.session_state.tour_completed:
             with st.expander("👋 Welcome to Safe-Passage!", expanded=True):
                 st.markdown("""
@@ -36,29 +36,32 @@ class GuidedTour:
                 
                 ---
                 """)
-                
+
                 col1, col2 = st.columns(2)
                 with col1:
-                    if st.button("🚀 Start Tour", use_container_width=True):
+                    if st.button("🚀 Start Tour", width="stretch"):
                         st.session_state.show_tour = True
                         st.rerun()
                 with col2:
-                    if st.button("⏭️ Skip Tour", use_container_width=True):
+                    if st.button("⏭️ Skip Tour", width="stretch"):
                         st.session_state.tour_completed = True
                         st.rerun()
-    
+
     @staticmethod
     def show_feature_tooltip(feature_name: str, description: str):
         """Show tooltip for a feature"""
         st.info(f"💡 **{feature_name}**: {description}")
-    
+
     @staticmethod
     def show_tour_step(step_number: int, total_steps: int, title: str, content: str):
         """Show a tour step"""
-        st.markdown(f"""
+        st.markdown(
+            f"""
         <div style="background-color: #e3f2fd; padding: 15px; border-radius: 10px; border-left: 4px solid #2196F3;">
             <p style="margin: 0; color: #666; font-size: 0.9rem;">Step {step_number} of {total_steps}</p>
             <h4 style="margin: 5px 0;">{title}</h4>
             <p style="margin: 5px 0;">{content}</p>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
