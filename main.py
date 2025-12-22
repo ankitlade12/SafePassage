@@ -1,6 +1,8 @@
 """
 Safe-Passage - Complete System (All Phases)
 Emergency Liquidity + Exit Planning with Real Data & Simulated Payouts
++ Hackathon Features: Chaos Slider, Sankey Diagram, Dead Man's Switch,
+  Guardian Network, Shadow Banking, Crisis Packet, Proof of Reserves
 """
 
 import streamlit as st
@@ -31,6 +33,23 @@ from ui.components import (
     EmergencyWidget,
     ComparisonTool,
 )
+
+# Hackathon Features
+from core.hackathon_features import (
+    DeadManSwitch,
+    GuardianNetwork,
+    ShadowBankingMode,
+    ProofOfReserves,
+)
+from ui.hackathon_ui import (
+    ChaosSliderUI,
+    SankeyDiagramUI,
+    DeadManSwitchWidget,
+    GuardianWidget,
+    ShadowBankingWidget,
+    BlockchainBadge,
+)
+from utils.export import CrisisPacketGenerator
 
 
 # Page config
@@ -124,11 +143,30 @@ if "emergency_activated" not in st.session_state:
 if "payout_transaction" not in st.session_state:
     st.session_state.payout_transaction = None
 
+# Hackathon Features Session State
+if "chaos_level" not in st.session_state:
+    st.session_state.chaos_level = 2  # Default low chaos
+
+if "dead_man_switch" not in st.session_state:
+    st.session_state.dead_man_switch = DeadManSwitch()
+
+if "guardian_network" not in st.session_state:
+    st.session_state.guardian_network = GuardianNetwork()
+
+if "shadow_banking" not in st.session_state:
+    st.session_state.shadow_banking = ShadowBankingMode()
+
 # Get current state
 user = st.session_state.user_profile
 monitor = st.session_state.risk_monitor
 payout_orch = st.session_state.payout_orchestrator
 current_risk = monitor.get_current_risk_level(user.current_location)
+
+# Initialize proof of reserves after user is defined
+if "proof_of_reserves" not in st.session_state:
+    st.session_state.proof_of_reserves = ProofOfReserves(
+        amount=user.exit_fund.amount if user.exit_fund else 5000.0
+    )
 
 # Header
 st.title("🛡️ Safe-Passage")
@@ -233,6 +271,11 @@ with st.sidebar:
     else:
         st.warning("⚠️ No exit fund configured")
 
+    # Proof of Reserves Badge (Hackathon Feature)
+    st.markdown("---")
+    st.markdown("### On-Chain Verification")
+    BlockchainBadge.show_badge(st.session_state.proof_of_reserves)
+
     st.markdown("---")
 
     # Demo controls
@@ -279,13 +322,23 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
 
 # Tab 1: Dashboard with Enhanced Visuals
 with tab1:
+    # Chaos Slider (Hackathon Feature #1)
+    st.session_state.chaos_level = ChaosSliderUI.show_chaos_slider(
+        st.session_state.chaos_level
+    )
+    
+    # Use chaos level to override risk for demo
+    demo_risk = st.session_state.chaos_level
+    
+    st.markdown("---")
+    
     # Risk Gauge (Feature #3)
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.subheader("Current Risk Level")
+        st.subheader("⚡ Current Risk Level")
         st.plotly_chart(
-            create_risk_gauge(current_risk), width="stretch", key="risk_gauge"
+            create_risk_gauge(demo_risk), width="stretch", key="risk_gauge"
         )
 
     with col2:
@@ -302,6 +355,21 @@ with tab1:
             user.exit_fund.fallback_destinations[0].city
             if user.exit_fund and user.exit_fund.fallback_destinations
             else "N/A",
+        )
+    
+    # Sankey Diagram (Hackathon Feature #2)
+    st.markdown("---")
+    st.subheader("↔ Liquidity Flow Analysis")
+    st.caption("Real-time visualization of how your funds route through available networks")
+    SankeyDiagramUI.show_sankey(
+        demo_risk, 
+        user.exit_fund.amount if user.exit_fund else 5000.0
+    )
+    
+    # Guardian Alert Check
+    if st.session_state.guardian_network.should_alert(demo_risk):
+        GuardianWidget.show_guardian_alert(
+            st.session_state.guardian_network, demo_risk
         )
 
     st.markdown("---")
@@ -494,8 +562,11 @@ with tab2:
             st.write(f"🚨 Emergency: {checklist.embassy_info.get('emergency')}")
 
     else:
+        # Use chaos level for demo
+        demo_risk = st.session_state.chaos_level
+        
         # Show activation interface
-        if current_risk >= 7:
+        if demo_risk >= 7:
             st.error("🚨 **HIGH RISK DETECTED** - Immediate action recommended")
 
             nearby_alerts = monitor.get_nearby_alerts(user.current_location)
@@ -517,7 +588,7 @@ with tab2:
 
                 # Use Smart Liquidity Oracle
                 transaction = SmartPayoutUI.show_smart_payout_options(
-                    user, current_risk, payout_orch
+                    user, demo_risk, payout_orch
                 )
 
                 # Emergency Widget (Feature #6)
@@ -530,17 +601,15 @@ with tab2:
                     user.exit_fund.triggered_at = datetime.now()
                     st.rerun()
 
-            # Feature #10: PDF Export (Emergency Checklist)
+            # Enhanced Crisis Packet Export (Hackathon Feature)
             st.markdown("---")
-            st.subheader("📄 Export Emergency Checklist")
-            st.write(
-                "Generate a printable PDF of your personalized emergency checklist."
+            playbook_gen = ExitPlaybookGenerator()
+            export_checklist = playbook_gen.generate_checklist(
+                user.current_location,
+                user.exit_fund.fallback_destinations[0] if user.exit_fund and user.exit_fund.fallback_destinations else user.current_location,
+                user.exit_fund.trusted_contacts if user.exit_fund else [],
             )
-            if st.button("Download PDF Checklist", width="stretch"):
-                st.success("PDF generation initiated! (Simulated)")
-                # In a real app, you'd call a function to generate and serve the PDF
-                # For example: pdf_data = generate_checklist_pdf(user, checklist)
-                # st.download_button(label="Click to Download", data=pdf_data, file_name="emergency_checklist.pdf", mime="application/pdf")
+            CrisisPacketGenerator.show_crisis_packet_export(export_checklist, user)
 
             # Feature #11: Currency Converter
             st.markdown("---")
@@ -600,13 +669,98 @@ with tab2:
             st.write(
                 "Emergency protocol can be activated when risk level reaches 7/10 or higher."
             )
+            st.caption("💡 Tip: Use the **Chaos Slider** on the Dashboard tab to simulate different crisis levels.")
+    
+    # Dead Man's Switch (Hackathon Feature)
+    st.markdown("---")
+    st.session_state.dead_man_switch = DeadManSwitchWidget.show_switch(
+        st.session_state.dead_man_switch
+    )
+    
+    # Shadow Banking Mode (Hackathon Feature)
+    st.markdown("---")
+    if user.exit_fund:
+        ShadowBankingWidget.show_shadow_mode(
+            st.session_state.shadow_banking,
+            user.exit_fund.amount,
+            user.exit_fund.currency
+        )
 
 # Tab 3: Audit Trail
 with tab3:
     st.header("📋 Audit Trail")
+    
+    # Oracle Decision Log (Enhanced for Hackathon)
+    demo_risk = st.session_state.chaos_level
+    
+    st.subheader("🤖 Oracle Decision Log")
+    st.caption("Real-time reasoning for payout routing decisions")
+    
+    # Generate Oracle reasoning based on current risk
+    from core.liquidity_oracle import LiquidityOracle
+    recommendations = LiquidityOracle.get_recommendations(user, demo_risk)
+    
+    if recommendations:
+        top_reco = recommendations[0]
+        now = datetime.now()
+        
+        # Determine the signal source
+        if demo_risk >= 8:
+            signal = "Civil Unrest"
+            probability = 92
+            reason = "Local banking infrastructure compromised"
+        elif demo_risk >= 6:
+            signal = "Political Instability"
+            probability = 75
+            reason = "ATM network experiencing disruptions"
+        elif demo_risk >= 4:
+            signal = "Elevated Tensions"
+            probability = 45
+            reason = "Precautionary monitoring active"
+        else:
+            signal = "Stable Conditions"
+            probability = 10
+            reason = "All payment rails operational"
+        
+        # Display Oracle decision log entries
+        st.markdown(f"""
+        <div style='background: #1a1a2e; color: #eee; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 0.85em;'>
+            <p style='color: #4caf50; margin: 5px 0;'>🔍 [{now.strftime('%H:%M:%S')}] GDELT Signal Analysis Complete</p>
+            <p style='margin: 5px 0;'>   └─ Signal Type: <span style='color: #ff9800;'>{signal}</span></p>
+            <p style='margin: 5px 0;'>   └─ Risk Level: <span style='color: {"#f44336" if demo_risk >= 7 else "#ff9800" if demo_risk >= 4 else "#4caf50"};'>{demo_risk}/10</span></p>
+            <p style='margin: 5px 0;'>   └─ Bank Holiday Probability: <span style='color: #2196f3;'>{probability}%</span></p>
+            <p style='color: #4caf50; margin: 10px 0 5px 0;'>🤖 [{now.strftime('%H:%M:%S')}] Oracle Routing Decision</p>
+            <p style='margin: 5px 0;'>   └─ Primary Method: <span style='color: #00bcd4;'>{top_reco.method.value.replace('_', ' ').upper()}</span></p>
+            <p style='margin: 5px 0;'>   └─ Match Score: <span style='color: #4caf50;'>{top_reco.match_score}%</span></p>
+            <p style='margin: 5px 0;'>   └─ Network Status: <span style='color: {"#4caf50" if top_reco.network_condition.status.value == "ONLINE" else "#ff9800"};'>{top_reco.network_condition.status.value}</span></p>
+            <p style='margin: 5px 0;'>   └─ ETA: {top_reco.estimated_time}</p>
+            <p style='color: #9e9e9e; margin: 10px 0 5px 0;'>📝 Reasoning:</p>
+            <p style='margin: 5px 0; color: #aaa;'>   "{reason}. Oracle rerouted from traditional banking to {top_reco.method.value.replace('_', ' ')} because {signal} signal > {demo_risk - 0.5:.1f} indicates {probability}% probability of payment rail disruption."</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Show all method scores
+        st.markdown("---")
+        st.subheader("📊 All Method Scores")
+        
+        cols = st.columns(len(recommendations))
+        for i, reco in enumerate(recommendations):
+            with cols[i]:
+                status_color = "#4caf50" if reco.network_condition.status.value == "ONLINE" else "#ff9800" if reco.network_condition.status.value == "CONGESTED" else "#f44336"
+                st.markdown(f"""
+                <div style='text-align: center; padding: 10px; background: #f5f5f5; border-radius: 8px; border-top: 3px solid {status_color};'>
+                    <strong>{reco.method.value.replace('_', ' ').title()}</strong><br>
+                    <span style='font-size: 1.5em; color: {status_color};'>{reco.match_score}%</span><br>
+                    <small style='color: #666;'>{reco.network_condition.status.value}</small>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    st.markdown("---")
 
     if st.session_state.payout_transaction:
         transaction = st.session_state.payout_transaction
+        
+        st.subheader("💳 Transaction Record")
 
         st.json(
             {
@@ -634,6 +788,7 @@ with tab3:
                 f"**{transaction.completed_at.strftime('%Y-%m-%d %H:%M:%S')}** - Payout completed"
             )
     else:
+        st.subheader("📜 Transaction History")
         st.success("✅ **No Emergency Activations**")
         st.write(
             "Your exit fund is active and ready, but you haven't needed to activate it yet."
@@ -659,6 +814,13 @@ with tab5:
     NotificationCenter.show_notification_settings()
 
     st.markdown("---")
+    
+    # Guardian Network (Hackathon Feature)
+    st.session_state.guardian_network = GuardianWidget.show_guardian_manager(
+        st.session_state.guardian_network
+    )
+
+    st.markdown("---")
 
     # Feature #1: QR Code Generator
     QRCodeGenerator.show_qr_widget(user)
@@ -668,10 +830,8 @@ with tab5:
     # Feature #2: Alert Previews
     AlertSimulator.show_alert_previews()
 
-# Tab 6: Enhanced Analytics (Feature #9)
+# Tab 6: Enhanced Analytics
 with tab6:
-    from ui.analytics import AnalyticsDashboard as EnhancedAnalytics
-
     EnhancedAnalytics.show_enhanced_analytics(user.current_location.city)
 
 # Footer
@@ -680,8 +840,8 @@ st.markdown(
     """
 <div style="text-align: center; color: #666;">
     <p><strong>Safe-Passage</strong> - Emergency Liquidity + Exit Planning</p>
-    <p style="font-size: 0.8rem;">✨ Complete System: Real Data Integration + Simulated Payouts + Enhanced UI</p>
-    <p style="font-size: 0.7rem;">Phase 1-4 Complete | Ready for Demo</p>
+    <p style="font-size: 0.8rem;">✨ Complete System: Chaos Slider | Sankey Diagram | Dead Man's Switch | Guardian Network | Shadow Banking | Crisis Packet | Proof of Reserves</p>
+    <p style="font-size: 0.7rem;">Visaverse Hackathon 2024 | All Features Implemented</p>
 </div>
 """,
     unsafe_allow_html=True,

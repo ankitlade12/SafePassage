@@ -176,3 +176,230 @@ class PDFExporter:
                     mime="application/json",
                     width="stretch",
                 )
+
+
+class CrisisPacketGenerator:
+    """Generate enhanced crisis packet with emergency phrases and authority messages"""
+    
+    # Emergency phrases in multiple languages
+    EMERGENCY_PHRASES = {
+        "English": {
+            "help": "I need help!",
+            "emergency": "This is an emergency!",
+            "hospital": "Take me to the hospital",
+            "embassy": "I need to contact my embassy",
+            "police": "Call the police",
+            "danger": "I am in danger",
+        },
+        "Spanish": {
+            "help": "¡Necesito ayuda!",
+            "emergency": "¡Es una emergencia!",
+            "hospital": "Lléveme al hospital",
+            "embassy": "Necesito contactar mi embajada",
+            "police": "Llame a la policía",
+            "danger": "Estoy en peligro",
+        },
+        "French": {
+            "help": "J'ai besoin d'aide!",
+            "emergency": "C'est une urgence!",
+            "hospital": "Emmenez-moi à l'hôpital",
+            "embassy": "Je dois contacter mon ambassade",
+            "police": "Appelez la police",
+            "danger": "Je suis en danger",
+        },
+        "Arabic": {
+            "help": "أحتاج مساعدة!",
+            "emergency": "هذه حالة طوارئ!",
+            "hospital": "خذني إلى المستشفى",
+            "embassy": "أحتاج الاتصال بسفارتي",
+            "police": "اتصل بالشرطة",
+            "danger": "أنا في خطر",
+        },
+        "Mandarin": {
+            "help": "我需要帮助！",
+            "emergency": "这是紧急情况！",
+            "hospital": "带我去医院",
+            "embassy": "我需要联系我的大使馆",
+            "police": "请报警",
+            "danger": "我处于危险中",
+        },
+        "Turkish": {
+            "help": "Yardıma ihtiyacım var!",
+            "emergency": "Bu bir acil durum!",
+            "hospital": "Beni hastaneye götürün",
+            "embassy": "Elçiliğimi aramam lazım",
+            "police": "Polisi arayın",
+            "danger": "Tehlikedeyim",
+        },
+        "Russian": {
+            "help": "Мне нужна помощь!",
+            "emergency": "Это экстренная ситуация!",
+            "hospital": "Отвезите меня в больницу",
+            "embassy": "Мне нужно связаться с посольством",
+            "police": "Вызовите полицию",
+            "danger": "Я в опасности",
+        },
+        "Japanese": {
+            "help": "助けてください！",
+            "emergency": "緊急事態です！",
+            "hospital": "病院に連れて行ってください",
+            "embassy": "大使館に連絡が必要です",
+            "police": "警察を呼んでください",
+            "danger": "危険な状況です",
+        },
+        "Portuguese": {
+            "help": "Preciso de ajuda!",
+            "emergency": "É uma emergência!",
+            "hospital": "Leve-me ao hospital",
+            "embassy": "Preciso contactar minha embaixada",
+            "police": "Chame a polícia",
+            "danger": "Estou em perigo",
+        },
+        "Hindi": {
+            "help": "मुझे मदद चाहिए!",
+            "emergency": "यह एक आपातकाल है!",
+            "hospital": "मुझे अस्पताल ले जाइए",
+            "embassy": "मुझे अपने दूतावास से संपर्क करना है",
+            "police": "पुलिस को बुलाइए",
+            "danger": "मैं खतरे में हूं",
+        },
+    }
+    
+    @staticmethod
+    def generate_authority_help_message(user_profile, checklist) -> str:
+        """Generate pre-written help message for local authorities"""
+        return f"""
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                 EMERGENCY ASSISTANCE REQUEST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+To: Local Authorities / Emergency Services
+
+I am a foreign national requiring emergency assistance.
+
+PERSONAL INFORMATION:
+• Name: {user_profile.name}
+• Nationality: {user_profile.passport_country}
+• Home Country: {user_profile.home_country}
+• Current Location: {user_profile.current_location}
+
+EMERGENCY CONTACTS:
+{chr(10).join([f"• {c.name} ({c.relationship}): {c.phone}" for c in checklist.emergency_contacts])}
+
+EMBASSY CONTACT:
+• {checklist.embassy_info.get('name', 'U.S. Embassy') if checklist.embassy_info else 'Contact embassy'}
+• Emergency Line: {checklist.embassy_info.get('emergency', 'See local directory') if checklist.embassy_info else 'See local directory'}
+
+MEDICAL INFORMATION:
+• [Add any allergies or medical conditions]
+
+I am following Safe-Passage emergency protocol.
+Document verification: SP-{datetime.now().strftime('%Y%m%d')}-AUTH
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
+    
+    @staticmethod
+    def generate_crisis_packet(checklist, user_profile) -> str:
+        """Generate complete crisis packet with all emergency information"""
+        import hashlib
+        
+        output = []
+        
+        # Header with verification hash
+        doc_hash = hashlib.sha256(
+            f"{user_profile.user_id}{datetime.now().isoformat()}".encode()
+        ).hexdigest()[:12].upper()
+        
+        output.append("╔" + "═" * 58 + "╗")
+        output.append("║" + "SAFE-PASSAGE CRISIS PACKET".center(58) + "║")
+        output.append("║" + f"Document ID: SP-{doc_hash}".center(58) + "║")
+        output.append("╚" + "═" * 58 + "╝")
+        output.append("")
+        output.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}")
+        output.append(f"User: {user_profile.name}")
+        output.append(f"Location: {user_profile.current_location}")
+        output.append("")
+        
+        # Authority Help Message
+        output.append("=" * 60)
+        output.append("SECTION 1: AUTHORITY HELP MESSAGE")
+        output.append("=" * 60)
+        output.append("(Show this to local authorities if you need assistance)")
+        output.append("")
+        output.append(CrisisPacketGenerator.generate_authority_help_message(
+            user_profile, checklist
+        ))
+        
+        # Emergency Phrases
+        output.append("")
+        output.append("=" * 60)
+        output.append("SECTION 2: EMERGENCY PHRASES")
+        output.append("=" * 60)
+        output.append("")
+        
+        for language, phrases in CrisisPacketGenerator.EMERGENCY_PHRASES.items():
+            output.append(f"【 {language} 】")
+            output.append("-" * 40)
+            for key, phrase in phrases.items():
+                output.append(f"  {key.upper():12} → {phrase}")
+            output.append("")
+        
+        # Standard Checklist
+        output.append("=" * 60)
+        output.append("SECTION 3: EXIT CHECKLIST")
+        output.append("=" * 60)
+        output.append(ExportManager.export_checklist_text(checklist))
+        
+        # Offline Route Summary
+        output.append("")
+        output.append("=" * 60)
+        output.append("SECTION 4: OFFLINE ROUTE SUMMARY")
+        output.append("=" * 60)
+        output.append("")
+        
+        for i, route in enumerate(checklist.safe_routes, 1):
+            output.append(f"ROUTE {i}:")
+            output.append(f"  From: {route.from_location}")
+            output.append(f"  To:   {route.to_location}")
+            output.append(f"  Via:  {route.method.upper()}")
+            output.append(f"  Time: {route.estimated_time}")
+            output.append(f"  Note: {route.notes}")
+            output.append("")
+        
+        # Document Footer
+        output.append("=" * 60)
+        output.append("DOCUMENT VERIFICATION")
+        output.append("=" * 60)
+        output.append(f"Document Hash: {doc_hash}")
+        output.append("This document was generated by Safe-Passage Emergency System.")
+        output.append("Keep this document accessible offline at all times.")
+        output.append("")
+        output.append("╔" + "═" * 58 + "╗")
+        output.append("║" + "END OF CRISIS PACKET".center(58) + "║")
+        output.append("╚" + "═" * 58 + "╝")
+        
+        return "\n".join(output)
+    
+    @staticmethod
+    def show_crisis_packet_export(checklist, user_profile):
+        """Show crisis packet export button"""
+        if checklist:
+            st.markdown("### 📋 Crisis Packet (Enhanced)")
+            st.caption("Complete emergency document with phrases in 10 languages")
+            
+            packet_content = CrisisPacketGenerator.generate_crisis_packet(
+                checklist, user_profile
+            )
+            
+            st.download_button(
+                label="📥 Download Crisis Packet",
+                data=packet_content.encode("utf-8"),
+                file_name=f"crisis_packet_{user_profile.name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.txt",
+                mime="text/plain",
+                type="primary",
+                width="stretch",
+            )
+            
+            with st.expander("👁️ Preview Crisis Packet"):
+                st.text(packet_content[:2000] + "\n\n... [truncated for preview]")

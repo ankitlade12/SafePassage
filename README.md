@@ -1,23 +1,20 @@
-# Safe-Passage - Emergency Liquidity System
+# Safe-Passage - Emergency Liquidity + Tactical Evacuation System
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)](https://streamlit.io/)
-[![Production Ready](https://img.shields.io/badge/status-production--ready-green.svg)]()
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Streamlit](https://img.shields.io/badge/streamlit-1.37+-red.svg)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Emergency exit fund and crisis management platform for travelers, expats, and digital nomads.**
+**Your money shouldn't be trapped when the world falls apart.**
 
 ## Quick Highlights
 
-- ** Multi-Currency Exit Fund**: $5,000+ emergency fund with 4 payout methods (crypto, wire, cash, mobile)
-- ** 🤖 Smart Liquidity Oracle**: Algorithmic scoring engine that ranks payout methods by speed & safety
-- ** Network Simulation**: Realistic simulation of financial network outages (e.g., "Banks Closed")
-- ** Real-Time Risk Monitoring**: Live integration with GDELT, USGS, and State Department alerts
-- ** Interactive Maps**: Visualize your location, fallback destinations, and nearby threats
-- ** Crisis Scenarios**: Pre-built emergency simulations for 5 global hotspots
-- ** Smart Trip Planning**: Risk assessment for 30+ countries with AI-powered recommendations
-- ** Enhanced Analytics**: Historical trends, global heatmaps, and journey timelines
-- ** Fast Setup**: Install and run in under 2 minutes with UV
+- **Liquidity Oracle**: AI-powered algorithm ranks payout methods by real-time network conditions
+- **Real-Time Risk Monitoring**: GDELT, USGS, and State Department data integration
+- **Proof of Reserves**: Simulated on-chain verification of your $5,000 exit fund
+- **Dead Man's Switch**: Timer-based check-in triggers auto-payout if you go dark
+- **Guardian Network**: Multi-sig safety with trusted contacts
+- **Shadow Banking Mode**: Offline QR codes when internet/banks fail
+- **Crisis Packet**: 10-language emergency phrases for local authorities
 
 ## Architecture Overview
 
@@ -25,569 +22,472 @@
 
 ```mermaid
 graph LR
-subgraph "STEP 1: PROFILE SETUP"
-U[User Profile<br/>Name, Location] --> EF[Exit Fund<br/>$5,000 USD]
-EF --> PM[Payout Methods<br/>4 Options]
-PM --> FD[Fallback Destination<br/>Safe Location]
-end
+    subgraph "REAL-TIME MONITORING"
+        G[GDELT API<br/>Political Events] --> RM[Risk Monitor<br/>Score: 0-10]
+        U[USGS API<br/>Earthquakes] --> RM
+        S[State Dept<br/>Advisories] --> RM
+    end
+    
+    subgraph "LIQUIDITY ORACLE"
+        RM --> LO[Liquidity Oracle<br/>Rank Methods]
+        LO --> C[Crypto Wallet<br/>Speed: 9/10]
+        LO --> W[Wire Transfer<br/>Speed: 3/10]
+        LO --> M[Mobile Money<br/>Speed: 8/10]
+        LO --> P[Cash Pickup<br/>Speed: 7/10]
+    end
+    
+    subgraph "EMERGENCY ACTIVATION"
+        C --> PA[Payout<br/>Orchestrator]
+        W --> PA
+        M --> PA
+        P --> PA
+        PA --> USER[User Receives<br/>$5,000 Exit Fund]
+    end
 
-subgraph "STEP 2: RISK MONITORING"
-FD --> RM[Risk Monitor<br/>Real-Time Scanning]
-RM --> API1[GDELT API<br/>Global Events]
-RM --> API2[USGS API<br/>Earthquakes]
-RM --> API3[State Dept<br/>Travel Alerts]
-API1 --> AL[Active Alerts<br/>Nearby Threats]
-API2 --> AL
-API3 --> AL
-end
-
-subgraph "STEP 3: CRISIS DETECTION"
-AL --> RG[Risk Gauge<br/>0-10 Scale]
-RG --> TH{Risk >= 7?}
-TH -->|Yes| EA[Emergency<br/>Activation]
-TH -->|No| MON[Continue<br/>Monitoring]
-end
-
-subgraph "STEP 4: EMERGENCY RESPONSE"
-EA --> PS[Payout Selection<br/>Choose Method]
-PS --> SIM[Payout Simulator<br/>15min - 3 days]
-SIM --> EC[Exit Checklist<br/>Personalized Plan]
-EC --> SR[Safe Routes<br/>Geography-Based]
-end
-
-style U fill:#e1f5ff
-style AL fill:#ffebee
-style EA fill:#f44336,color:#fff
-style SIM fill:#c8e6c9
-style API1 fill:#fff4e1
-style API2 fill:#fff4e1
-style API3 fill:#fff4e1
+    style RM fill:#ff6b6b
+    style LO fill:#4ecdc4
+    style PA fill:#45b7d1
+    style USER fill:#96ceb4
 ```
 
 ### System Architecture
 
 ```mermaid
 graph TB
-UI[" USER INTERFACE<br/>Streamlit Multi-Tab<br/>Dashboard | Emergency | Trip Planner | Analytics | Settings"]
-APP[" APPLICATION<br/>main.py<br/>Session State | UI Rendering | Tab Navigation"]
+    UI["🖥️ STREAMLIT UI<br/>Dashboard | Emergency | Audit Trail<br/>Trip Planner | Settings | Analytics"]
+    
+    subgraph "CORE ENGINE"
+        RM["risk_monitor.py<br/>Real-Time Alerts"]
+        LO["liquidity_oracle.py<br/>Payout Ranking"]
+        PS["payout_simulator.py<br/>Transaction Execution"]
+        EP["exit_playbook.py<br/>Evacuation Routes"]
+    end
+    
+    subgraph "HACKATHON FEATURES"
+        HF1["Dead Man's Switch<br/>Timer-Based Safety"]
+        HF2["Guardian Network<br/>Multi-Sig Contacts"]
+        HF3["Shadow Banking<br/>Offline QR Codes"]
+        HF4["Proof of Reserves<br/>On-Chain Verification"]
+    end
+    
+    subgraph "DATA SOURCES"
+        API1["GDELT<br/>Global Events"]
+        API2["USGS<br/>Earthquakes"]
+        API3["State Dept<br/>Travel Advisories"]
+    end
 
-subgraph "CORE SERVICES"
-SVC1["core/risk_monitor.py<br/>Risk Assessment"]
-SVC2["core/payout_simulator.py<br/>Fund Distribution"]
-SVC3["core/exit_playbook.py<br/>Checklist Generator"]
-SVC4["api/real_data_integration.py<br/>API Orchestration"]
-end
+    UI --> RM
+    UI --> LO
+    UI --> PS
+    UI --> EP
+    
+    RM --> API1
+    RM --> API2
+    RM --> API3
+    
+    UI --> HF1
+    UI --> HF2
+    UI --> HF3
+    UI --> HF4
 
-subgraph "UI LAYER"
-UI1["ui/dashboard.py<br/>Main Dashboard"]
-UI2["ui/analytics.py<br/>Analytics"]
-UI3["ui/components.py<br/>Visual Elements"]
-UI4["ui/guided_tour.py<br/>Onboarding"]
-end
-
-subgraph "DATA & UTILS"
-DATA1["models.py<br/>Data Models"]
-UTIL1["utils/export.py<br/>Export Manager"]
-UTIL2["utils/currency.py<br/>Currency Manager"]
-API1["api/geocoding.py<br/>Geolocation"]
-end
-
-subgraph "EXTERNAL APIs"
-EXT1[" GDELT<br/>Global Events"]
-EXT2[" USGS<br/>Earthquakes"]
-EXT3[" State Dept<br/>Travel Alerts"]
-end
-
-UI --> APP
-APP --> SVC1
-APP --> SVC2
-APP --> SVC3
-APP --> SVC4
-
-APP --> ADV1
-APP --> ADV2
-APP --> ADV3
-APP --> ADV4
-
-SVC1 --> DATA1
-SVC2 --> DATA1
-SVC3 --> DATA1
-SVC3 --> DATA2
-
-SVC4 --> EXT1
-SVC4 --> EXT2
-SVC4 --> EXT3
-
-ADV1 --> DATA1
-ADV3 --> DATA2
-ADV3 --> DATA3
-
-style UI fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
-style APP fill:#fff4e1,stroke:#f57c00,stroke-width:2px
-style SVC1 fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-style SVC2 fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-style SVC3 fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-style SVC4 fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-style ADV1 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-style ADV2 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-style ADV3 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-style ADV4 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-style EXT1 fill:#ffe0b2,stroke:#e64a19,stroke-width:2px
-style EXT2 fill:#ffe0b2,stroke:#e64a19,stroke-width:2px
-style EXT3 fill:#ffe0b2,stroke:#e64a19,stroke-width:2px
+    style UI fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    style RM fill:#ffebee,stroke:#c62828,stroke-width:2px
+    style LO fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style HF1 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    style HF2 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    style HF3 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    style HF4 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
 ```
 
 ### Tech Stack
 
-| Layer               | Technology              | Purpose                          |
-| ------------------- | ----------------------- | -------------------------------- |
-| **Frontend**        | Streamlit 1.28+         | Interactive multi-tab web UI     |
-| **Backend**         | Python 3.9+             | Application logic & services     |
-| **Data Viz**        | Plotly 5.17+            | Interactive maps, charts, gauges |
-| **APIs**            | GDELT, USGS, State Dept | Real-time risk data              |
-| **Validation**      | Pydantic                | Data models & validation         |
-| **QR Codes**        | qrcode + Pillow         | Emergency contact sharing        |
-| **PDF Export**      | ReportLab               | Checklist downloads              |
-| **Package Manager** | uv                      | Fast dependency management       |
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | Streamlit 1.37+ | Interactive dashboard with real-time updates |
+| **Backend** | Python 3.11 | Risk monitoring & payout orchestration |
+| **Visualization** | Plotly | Risk gauge, Sankey diagrams, interactive maps |
+| **Risk Data** | GDELT, USGS, State Dept | Real-time event monitoring |
+| **Session** | Streamlit State | User profile & transaction tracking |
+| **Package Manager** | uv | Fast dependency management |
 
 ## What is Safe-Passage?
 
-Safe-Passage is a **comprehensive emergency preparedness platform** that helps travelers and expats:
+Safe-Passage is a **Tactical Financial Resiliency System** that ensures travelers have access to emergency funds when traditional banking infrastructure fails during a crisis.
 
-1. **Prepare** - Set up emergency exit fund with multiple payout methods
-2. **Monitor** - Track real-time risks in your location (political unrest, natural disasters, security threats)
-3. **Respond** - Activate emergency protocol with one click
-4. **Evacuate** - Follow personalized exit checklist with safe routes
+**The Hook:** *"In 2025, a crisis moves faster than a bank wire. When the infrastructure fails, your money shouldn't be trapped with it."*
 
 ## The Problem
 
-When crisis strikes abroad:
-- **No access to funds** - Banks closed, ATMs empty, cards blocked
-- **No evacuation plan** - Panic, confusion, poor decisions
-- **No situational awareness** - Unaware of nearby threats
-- **No safe routes** - Don't know how to get to safety
-- **No emergency contacts** - Can't reach embassy or family
-- **Time pressure** - Every minute counts in a crisis
+When crisis hits abroad:
+- ❌ ATMs shut down or run out of cash
+- ❌ Banks close for "holidays" during unrest
+- ❌ Wire transfers take 3-5 business days
+- ❌ Credit cards get declined due to fraud alerts
+- ❌ Mobile networks go offline
+- ❌ You're stuck with no access to your money
 
 ## The Solution
 
 Safe-Passage provides:
-- **Pre-funded emergency account** with instant access
-- **Real-time risk monitoring** from 3 global data sources
-- **Automated crisis detection** with severity scoring
-- **One-click emergency activation** for rapid response
-- **Personalized exit checklist** with prioritized actions
-- **Geography-aware safe routes** (no impossible ferry rides!)
-- **Multi-currency support** for 8 major currencies
-- **Offline-ready exports** (PDF/JSON checklists)
+- ✅ **$5,000 pre-funded exit vault** with multiple payout methods
+- ✅ **Real-time risk monitoring** from global event databases
+- ✅ **Liquidity Oracle** that routes funds through working channels
+- ✅ **Offline backup** with Shadow Banking QR codes
+- ✅ **Automated safety net** with Dead Man's Switch
+- ✅ **Social recovery** via Guardian Network
 
 ## Features
 
-### Core Functionality
-- ** Emergency Exit Fund** - Pre-funded account ($5,000 default) with 4 payout methods
-- ** Real-Time Risk Monitor** - Live alerts from GDELT, USGS, State Department
-- ** Interactive Location Map** - See your position, fallback destination, and nearby alerts
-- ** Crisis Scenarios** - Pre-built simulations (City C, City D, City E, City F, City G)
-- ** Trip Risk Assessment** - Evaluate safety for 30+ countries before you go
-- ** Risk Gauge** - Speedometer-style visualization (0-10 scale)
-- ** Safe Route Generator** - Realistic evacuation routes based on geography
+### Core Features
+- **Risk Simulator** - Interactive slider simulates crisis levels (Peace → War)
+- **Liquidity Flow Diagram** - Sankey visualization of fund routing
+- **Smart Payout Selection** - AI-ranked methods based on network status
+- **Interactive Risk Map** - See alerts near your location
+- **Multi-Currency Support** - Exit fund in USD, EUR, GBP, crypto
+- **Audit Trail** - Complete transaction logging with Oracle reasoning
 
-### Advanced Features
-- ** QR Code Generator** - Share emergency contact info instantly
-- ** Alert System** - Email/SMS notification previews
-- ** PDF/JSON Export** - Download checklists for offline access
-- ** Emergency Widget** - One-click SOS with quick-dial contacts
-- ** Destination Comparison** - Compare risk levels for multiple locations
-- ** Multi-Currency Converter** - Real-time exchange rates for 8 currencies
-- ** Enhanced Analytics** - Historical trends, global heatmaps, journey timelines
-- ** Customizable Profile** - Update location, name, fallback destination
+### Hackathon Power Features
 
-### Payout Methods
-1. **Crypto Wallet** - 15 minutes (fastest)
-2. **Mobile Money** - 30 minutes
-3. **Cash Pickup** - 2-4 hours
-4. **Wire Transfer** - 2-3 days (most reliable)
+#### 1. Dead Man's Switch
+```
+If no check-in within 24h during high-risk → Auto-trigger emergency payout
+```
+- Configurable intervals (4h, 8h, 12h, 24h, 48h)
+- Visual countdown timer
+- Auto-payout to fallback destination
 
-## Smart Financial Intelligence
+#### 2. Guardian Network
+```
+When risk > 9/10 → Notify all active guardians
+```
+- Add up to 3 trusted contacts
+- Auto-notification on critical risk
+- Multi-sig approval capability
 
-The **Liquidity Oracle** treats "getting money out" as a routing problem. It doesn't just list methods; it ranks them.
+#### 3. Shadow Banking Mode
+```
+Internet down? → Generate offline QR code → Redeem at partner location
+```
+- One-time-use verification codes
+- Partner network (Western Union, MoneyGram, LocalBitcoins)
+- Works without internet
 
-### How it Works
-1.  **Context Awareness**: Checks your `Risk Level` (0-10) and `Location`.
-2.  **Network Logic**: Simulates real-world constraints:
-    *   *High Risk*: Banks might close (Offline). Cash agents might be scarce (Restricted).
-    *   *Normal*: All systems green.
-3.  **Scoring Engine**:
-    *   Calculates a **Match Score (0-100%)** for each method.
-    *   *Crisis Mode*: Weights **Speed** (50%) & **Reliability** (40%) over Cost.
-    *   *Normal Mode*: Weights **Cost** (40%) over Speed.
+#### 4. Crisis Packet
+```
+Download → 10-language emergency phrases → Show to authorities
+```
+- Emergency phrases in 10 languages
+- Pre-written help message for local authorities
+- Offline route summary
 
-**Example**:
-*   *Scenario*: Civil Unrest in City X.
-*   *Oracle Result*: **Crypto (98% Match)** is recommended because local banks are "OFFLINE" and Cash Pickup is "RESTRICTED".
+#### 5. Proof of Reserves
+```
+$5,000 USDC → Verified on Base chain → View on BaseScan
+```
+- Simulated on-chain verification
+- Mock vault address and transaction hash
+- Explorer link for transparency
+
+#### 6. Oracle Decision Log
+```
+[19:34] GDELT signal "Civil Unrest" > 8.5 → 92% bank holiday probability
+       → Reroute from Wire to USDC-Base
+```
+- Real-time reasoning for payout decisions
+- GDELT signal analysis
+- Bank holiday probability
+
+### User Experience
+- **6-Tab Navigation** - Dashboard, Emergency, Audit Trail, Trip Planner, Settings, Analytics
+- **Chaos Simulator** - Test different risk scenarios
+- **Auto-Refresh** - Real-time data updates
+- **Export Options** - PDF/JSON checklist export
+- **QR Code Generator** - Emergency contact information
+- **Currency Converter** - Local currency calculations
 
 ## Quick Start
 
 ### Prerequisites
 
-- Python 3.9+
-- [uv](https://github.com/astral-sh/uv) package manager
+- Python 3.11+
+- No API keys required (uses free public APIs)
 
 ### Installation
 
 ```bash
-# Install uv if you haven't already
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Clone the repository
-git clone <repository-url>
+# Clone and navigate to project
 cd visaverse
 
-# Install dependencies
+# Install dependencies with uv (recommended)
 uv sync
 
-# Run the application
+# Run the app
 uv run streamlit run main.py
 ```
 
-The app will open in your browser at `http://localhost:8501`
+Or with pip:
 
-### First-Time Setup
+```bash
+pip install -r requirements.txt
+streamlit run main.py
+```
 
-1. **Customize Profile** (Sidebar)
-- Enter your name
-- Set current location (city, country)
-- Set fallback destination (safe location)
-- Click " Save Profile"
+### Usage
 
-2. **Review Exit Fund** (Sidebar)
-- Status: ACTIVE
-- Amount: $5,000 USD
-- Payout methods: 4 available
-
-3. **Explore Dashboard**
-- Risk gauge shows current threat level
-- Interactive map displays your location
-- Active alerts list nearby threats
+1. **Dashboard** - View current risk level with the Chaos Simulator
+2. **Emergency** - Activate payout when risk ≥ 7/10
+3. **Audit Trail** - See Oracle decision reasoning
+4. **Trip Planner** - Compare destinations by risk
+5. **Settings** - Configure Guardian Network and alerts
+6. **Analytics** - Historical risk trends
 
 ## How It Works
 
-### Step 1: Profile Setup
+### Step 1: Risk Monitoring
 ```
-User Input → Location Geocoding → Profile Creation → Exit Fund Activation
-```
-
-Example:
-- Name: "User"
-- Location: "City A, USA" → (32.7767, -96.7970)
-- Fallback: "City B, India" → (19.0760, 72.8777)
-- Exit Fund: $5,000 USD with 4 payout methods
-
-### Step 2: Risk Monitoring
-```
-Location → Risk Monitor → API Calls → Alert Aggregation → Risk Score
+GDELT + USGS + State Dept → Risk Monitor → Score 0-10
 ```
 
-**Data Sources:**
-- **GDELT**: Political unrest, protests, conflicts
-- **USGS**: Earthquakes, natural disasters
-- **State Department**: Travel advisories, security alerts
+Example signals:
+- GDELT: "Political protest in Istanbul" → +2 risk
+- USGS: "5.2 earthquake 50km away" → +1 risk
+- State Dept: "Level 3: Reconsider Travel" → +3 risk
 
-**Risk Calculation:**
+### Step 2: Liquidity Oracle
+```
+Risk Level → Network Status Check → Rank Payout Methods
+```
+
+**Scoring Algorithm:**
 ```python
-Risk Score = (
-Political Stability (40%) +
-Natural Disaster Risk (30%) +
-Security Threats (20%) +
-Infrastructure Status (10%)
-)
+if risk_level >= 7:
+    # Crisis mode: Speed and reliability are king
+    weights = {"speed": 0.50, "reliability": 0.40, "cost": 0.10}
+else:
+    # Normal mode: Cost matters more
+    weights = {"speed": 0.30, "reliability": 0.30, "cost": 0.40}
 ```
 
-### Step 3: Crisis Detection
+### Step 3: Network Status
 ```
-Risk Score → Threshold Check → Alert Generation → User Notification
-```
-
-**Risk Levels:**
-- **0-3**: Low Risk - Normal monitoring
-- **4-6**: Moderate Risk - Increased vigilance
-- **7-8**: High Risk - Consider evacuation
-- **9-10**: Critical - Immediate action required
-
-### Step 4: Emergency Activation
-```
-User Click → Payout Selection → Simulation → Checklist Generation → Route Planning
+Check each payment rail → ONLINE / CONGESTED / RESTRICTED / OFFLINE
 ```
 
-**Emergency Checklist (Auto-Generated):**
-1. Secure passport and travel documents
-2. Contact U.S. Embassy/Consulate
-3. Book transportation to safe location
-4. Notify trusted contacts
-5. Withdraw available cash
-6. Pack essential items only
-7. Check travel restrictions
-8. Backup important data
+| Risk Level | Banking | ATM | Crypto | Mobile Money | Cash Pickup |
+|------------|---------|-----|--------|--------------|-------------|
+| 0-3 | ONLINE | ONLINE | ONLINE | ONLINE | ONLINE |
+| 4-6 | CONGESTED | CONGESTED | ONLINE | ONLINE | CONGESTED |
+| 7-8 | RESTRICTED | OFFLINE | ONLINE | ONLINE | RESTRICTED |
+| 9-10 | OFFLINE | OFFLINE | ONLINE | RESTRICTED | OFFLINE |
 
-**Safe Routes (Geography-Based):**
-- City A → City B: 16-18 hour flight (realistic!)
-- Includes: Flight time, connections, visa requirements
-- No impossible routes (e.g., ferry across continents)
+### Step 4: Payout Execution
+```
+Selected Method → Payout Orchestrator → Transaction ID → Confirmation
+```
 
-## The Risk Assessment Algorithm
+Example flow:
+- User selects: Crypto Wallet
+- Amount: $5,000 USDC
+- Network: Base chain
+- ETA: 2-5 minutes
+- Status: Processing → Confirmed
 
-Safe-Passage uses a multi-factor risk scoring system:
+## The Liquidity Oracle Algorithm
 
-### Scoring Components
+### Method Traits
 
-1. **Political Stability** (40%)
-- Government stability
-- Civil unrest indicators
-- Conflict zones
-- Protest activity
+| Method | Speed | Reliability | Cost | Privacy |
+|--------|-------|-------------|------|---------|
+| Crypto Wallet | 9/10 | 8/10 | 7/10 | 10/10 |
+| Wire Transfer | 3/10 | 9/10 | 5/10 | 6/10 |
+| Cash Pickup | 7/10 | 6/10 | 4/10 | 8/10 |
+| Mobile Money | 8/10 | 9/10 | 9/10 | 7/10 |
 
-2. **Natural Disaster Risk** (30%)
-- Earthquake frequency
-- Weather emergencies
-- Flood zones
-- Volcanic activity
+### Dynamic Weighting
 
-3. **Security Threats** (20%)
-- Crime rates
-- Terrorism risk
-- Border security
-- Law enforcement effectiveness
+```python
+# High risk (≥7): Speed is critical
+score = (speed × 0.50) + (reliability × 0.40) + (cost × 0.10)
 
-4. **Infrastructure Status** (10%)
-- Payment systems operational
-- Airport/port accessibility
-- Communication networks
-- Healthcare availability
+# Low risk (<7): Balance all factors
+score = (speed × 0.30) + (reliability × 0.30) + (cost × 0.40)
+```
 
-### Example Risk Profiles
+### Recommendation Output
 
 ```
-City A, USA:
-- Political: 9/10 
-- Natural: 7/10 (tornadoes)
-- Security: 9/10 
-- Infrastructure: 10/10 
-→ Overall Risk: 2.1/10 (Low)
-
-City F, Ukraine:
-- Political: 2/10 (active conflict)
-- Natural: 7/10 
-- Security: 3/10 
-- Infrastructure: 4/10 
-→ Overall Risk: 9/10 (Critical)
+1. Crypto Wallet - 87% match
+   → ONLINE | ETA: 2-5 min | Fee: 0.1%
+   
+2. Mobile Money - 72% match
+   → ONLINE | ETA: 5-15 min | Fee: 1.5%
+   
+3. Cash Pickup - 45% match
+   → RESTRICTED | ETA: 30-60 min | Fee: 3%
 ```
 
 ## Example Emergency Flow
 
 ```mermaid
 sequenceDiagram
-participant User
-participant SafePassage
-participant RiskMonitor
-participant APIs
-participant PayoutSystem
-
-User->>SafePassage: Set location: City A, TX
-SafePassage->>RiskMonitor: Start monitoring
-
-loop Every 5 minutes
-RiskMonitor->>APIs: Check GDELT, USGS, State Dept
-APIs-->>RiskMonitor: Current threat data
-RiskMonitor->>RiskMonitor: Calculate risk score
-end
-
-RiskMonitor->>SafePassage: Risk spike detected (7/10)
-SafePassage-->>User: HIGH RISK ALERT
-
-User->>SafePassage: Activate Emergency Protocol
-SafePassage->>PayoutSystem: Select: Crypto Wallet
-PayoutSystem-->>User: $5,000 sent (15 min ETA)
-
-SafePassage->>SafePassage: Generate exit checklist
-SafePassage->>SafePassage: Calculate safe routes
-SafePassage-->>User: Personalized evacuation plan
-
-User->>SafePassage: Download PDF checklist
-User->>SafePassage: Book flight to City B
+    participant User
+    participant SafePassage
+    participant GDELT
+    participant Oracle
+    participant Crypto
+    
+    GDELT->>SafePassage: Alert: Civil unrest in Istanbul
+    SafePassage->>SafePassage: Risk level → 8/10
+    SafePassage-->>User: 🚨 HIGH RISK DETECTED
+    
+    User->>SafePassage: View emergency options
+    SafePassage->>Oracle: Get recommendations
+    Oracle->>Oracle: Check network status
+    Oracle-->>SafePassage: 1. Crypto (87%)<br/>2. Mobile (72%)<br/>3. Cash (45%)
+    
+    User->>SafePassage: Select Crypto Wallet
+    SafePassage->>Crypto: Initiate $5,000 USDC transfer
+    Crypto-->>SafePassage: TxID: 0x7a8b...
+    SafePassage-->>User: ✅ Confirmed in 3 minutes
+    
+    SafePassage->>SafePassage: Log to Audit Trail
+    Note over SafePassage: "Rerouted from Wire to Crypto<br/>due to Civil Unrest signal > 7.5"
 ```
 
 ## Project Structure
 
 ```
 visaverse/
-├── main.py                     # Entry point (Streamlit app)
-├── models.py                   # Shared data models
-├── core/                       # Core Business Logic
-│   ├── risk_monitor.py         # Risk assessment engine
-│   ├── payout_simulator.py     # Payment simulation
-│   ├── liquidity_oracle.py     # 🤖 Smart routing logic
-│   ├── exit_playbook.py        # Checklist generation
-│   └── crisis_scenarios.py     # Crisis simulations
-├── ui/                         # User Interface
-│   ├── dashboard.py            # Main dashboard components
-│   ├── smart_payout.py         # 🤖 AI Payout Cards
-│   ├── analytics.py            # Analytics charts
-│   ├── components.py           # Reusable widgets (QR, Maps)
-│   ├── guided_tour.py          # Onboarding flow
-│   └── theme.py                # Visual theming
-├── api/                        # External Integrations
-│   ├── real_data_integration.py # GDELT/USGS APIs
-│   └── geocoding.py            # Coordinate lookup
-├── utils/                      # Utilities
-│   ├── export.py               # PDF/JSON export
-│   └── currency.py             # Currency conversion
-├── pyproject.toml              # Project dependencies
-└── README.md                   # Documentation
+├── main.py                           # Main Streamlit app (850+ lines)
+├── models.py                         # Data models (UserProfile, ExitFund, etc.)
+├── core/
+│   ├── risk_monitor.py              # Risk scoring engine
+│   ├── liquidity_oracle.py          # Payout ranking algorithm
+│   ├── payout_simulator.py          # Transaction orchestration
+│   ├── exit_playbook.py             # Evacuation route generator
+│   ├── crisis_scenarios.py          # Crisis simulation library
+│   └── hackathon_features.py        # Dead Man's Switch, Guardians, etc.
+├── ui/
+│   ├── components.py                # Risk gauge, maps, QR codes
+│   ├── dashboard.py                 # Trip planner, notifications
+│   ├── smart_payout.py              # Liquidity Oracle UI
+│   ├── analytics.py                 # Enhanced analytics dashboard
+│   └── hackathon_ui.py              # Chaos Slider, Sankey, widgets
+├── api/
+│   ├── real_data_integration.py     # GDELT, USGS, State Dept APIs
+│   └── geocoding.py                 # Location services
+├── utils/
+│   ├── export.py                    # PDF/JSON export + Crisis Packet
+│   └── currency.py                  # Multi-currency support
+├── LICENSE                          # MIT License
+├── requirements.txt                 # Python dependencies
+├── pyproject.toml                   # Project metadata
+└── README.md                        # This file
 ```
+
+## Competitive Analysis
+
+| Feature | Travel Risk Apps<br/>(International SOS) | Neobanks<br/>(Revolut, Wise) | Safe-Passage |
+|---------|-------------------------------------------|------------------------------|--------------|
+| Real-time Alerts | ✅ GDELT/Internal | ❌ | ✅ GDELT/USGS |
+| Emergency Funds | ❌ (requires claim) | ❌ (standard balance) | ✅ $5,000 Vault |
+| Liquidity Oracle | ❌ | ❌ | ✅ AI-ranked methods |
+| Crisis Simulation | ❌ | ❌ | ✅ Chaos Slider |
+| Network Resiliency | Human advice only | None (goes offline) | ✅ Auto crypto routing |
+| Offline Backup | ❌ | ❌ | ✅ Shadow Banking |
+| Dead Man's Switch | ❌ | ❌ | ✅ Timer-based payout |
+| Guardian Network | ❌ | ❌ | ✅ Multi-sig contacts |
+
+**Your Unfair Advantage:** Safe-Passage is the "Waze for Money" in a crisis - while others tell you there's a traffic jam, we're already rerouting your funds through the only open digital highway.
 
 ## Use Cases
 
 ### Perfect For:
-- **Digital Nomads** - Working remotely in unstable regions
-- **Frequent Travelers** - Business trips to high-risk countries
-- **Expats** - Living abroad long-term
-- **Backpackers** - Traveling through multiple countries
-- ‍‍‍ **Families Abroad** - Parents with children in foreign countries
-- **Corporate Travel** - Companies with global workforce
-- **Journalists** - Reporting from conflict zones
-- **Study Abroad** - Students in international programs
+- 🌍 **Expats** - Living in politically unstable regions
+- ✈️ **Business Travelers** - Frequent trips to emerging markets
+- 📰 **Journalists** - Covering conflict zones
+- 🏥 **Aid Workers** - Operating in crisis regions
+- 🎒 **Digital Nomads** - Working from anywhere
+- 🏛️ **Diplomats** - Embassy staff in high-risk postings
+- 🔬 **Researchers** - Fieldwork in remote areas
 
-## Innovation Highlights
+## Hackathon Innovation
 
 ### Why Safe-Passage Stands Out:
 
-1. **Solves a Critical Problem**
-- 280 million international travelers annually
-- Increasing global instability and natural disasters
-- No existing comprehensive solution
-- Could save lives in crisis situations
+1. **Solves a Real Problem**
+   - Financial access during crises is genuinely broken
+   - No unified solution exists in the market
+   - Addresses a critical gap in travel safety
 
-2. **Real-Time Data Integration**
-- First platform to combine GDELT, USGS, and State Dept data
-- Automated risk assessment every 5 minutes
-- Predictive analytics for emerging threats
-- Historical trend analysis
+2. **Novel AI Application**
+   - Liquidity Oracle: First AI to rank payout methods by network health
+   - Predictive rerouting: Act before banks close
+   - Contextual reasoning in Audit Trail
 
 3. **Technical Innovation**
-- Geography-aware route generation (no impossible routes!)
-- Multi-currency support with real-time conversion
-- Offline-ready exports (PDF/JSON)
-- QR code emergency contact sharing
-- Realistic payout simulations
+   - Real-time data fusion (GDELT + USGS + State Dept)
+   - Dynamic network status simulation
+   - Sankey diagram for fund flow visualization
+   - Simulated blockchain verification
 
 4. **Production Ready**
-- Clean, modular architecture
-- Comprehensive error handling
-- Performance optimized
-- Scalable design
-- UV package management
+   - Clean, modular architecture
+   - Comprehensive error handling
+   - Audit trail for compliance
+   - Scalable session management
 
-5. **User Experience**
-- One-click emergency activation
-- Visual risk indicators (gauges, heatmaps)
-- Personalized checklists
-- Real-time updates
-- Mobile-responsive design
-
-## Deployment
-
-### Streamlit Cloud
-
-```bash
-# 1. Push to GitHub
-git add .
-git commit -m "Production ready"
-git push origin main
-
-# 2. Deploy on Streamlit Cloud
-# - Connect your GitHub repository
-# - Select main.py as entry point
-# - Deploy!
-```
-
-### Docker
-
-```dockerfile
-FROM python:3.9-slim
-
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
-WORKDIR /app
-COPY . .
-
-# Install dependencies
-RUN uv sync --frozen
-
-EXPOSE 8501
-
-CMD ["uv", "run", "streamlit", "run", "main.py"]
-```
-
-Build and run:
-```bash
-docker build -t safe-passage .
-docker run -p 8501:8501 safe-passage
-```
+5. **Viral Potential**
+   - Crisis-proof design appeals to safety-conscious travelers
+   - Guardian Network creates organic referrals
+   - Crisis Packet shareable across platforms
 
 ## Troubleshooting
 
-**"No alerts showing"**
-- This is normal for low-risk locations like City A
-- Try crisis scenarios to see the system in action
-- Check that APIs are accessible (GDELT, USGS)
+**App won't start**
+- Ensure Python 3.11+ is installed
+- Run `uv sync` or `pip install -r requirements.txt`
+- Check for port conflicts on 8501
 
-**"Map not displaying"**
-- Ensure Plotly is installed: `uv add plotly`
-- Check browser console for JavaScript errors
-- Try refreshing the page
+**No alerts showing**
+- Risk data refreshes on app load
+- Click "Refresh Data" in sidebar
+- Change location to a higher-risk area
 
-**"Payout simulation stuck"**
-- This is expected - it's a simulation
-- Progress bar shows estimated completion time
-- Real system would integrate with payment APIs
+**Payout stuck at "Processing"**
+- This is simulated - wait 2-3 seconds
+- Click on the Emergency tab to see updates
 
-**"Routes seem unrealistic"**
-- Routes are now geography-based (v1.0.0+)
-- No more impossible ferry rides!
-- Flight times include connections
+**Chaos Slider not updating**
+- Drag the slider, don't just click
+- Risk gauge updates instantly
 
 ## Future Enhancements
 
 ### Planned Features
-- [ ] **Real Payment Integration** - Actual crypto/wire transfers
-- [ ] **SMS Alerts** - Text notifications for high-risk events
-- [ ] **Family Accounts** - Coordinate evacuation for groups
-- [ ] **Travel Insurance Integration** - Automatic claims filing
-- [ ] **Embassy Coordination** - Direct communication with consulates
-- [ ] **Blockchain Audit Trail** - Immutable emergency records
-- [ ] **AI-Powered Predictions** - Machine learning for risk forecasting
-- [ ] **Mobile Apps** - Native iOS/Android applications
-- [ ] **Multi-Language Support** - 10+ languages
-- [ ] **Offline Mode** - Full functionality without internet
+- [ ] **Real Blockchain Integration** - Actual USDC on Base/Polygon
+- [ ] **SMS Alerts** - Twilio integration for Guardian notifications
+- [ ] **Satellite Connectivity** - Starlink API for offline areas
+- [ ] **Embassy Directory** - Auto-populate local embassy info
+- [ ] **Insurance Integration** - Travel insurance claim automation
+- [ ] **Mobile App** - React Native for iOS/Android
+- [ ] **Multi-Language UI** - Interface in 10+ languages
 
 ### Technical Improvements
-- [ ] **WebSocket Updates** - Real-time alerts without polling
-- [ ] **Database Backend** - PostgreSQL for persistence
+- [ ] **Real-Time WebSockets** - Instant risk updates
 - [ ] **Redis Caching** - Faster API responses
-- [ ] **Load Balancing** - Support 10,000+ concurrent users
-- [ ] **API Rate Limiting** - Graceful degradation
-- [ ] **Automated Testing** - 90%+ code coverage
+- [ ] **PostgreSQL** - Persistent user data
+- [ ] **Load Testing** - Support 10,000+ concurrent users
+- [ ] **CI/CD Pipeline** - Automated testing and deployment
 
 ## Contributing
 
-Contributions welcome! To contribute:
+Contributions welcome after hackathon submission!
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ## License
 
@@ -598,21 +498,12 @@ MIT License - see LICENSE file
 Built with:
 - [Streamlit](https://streamlit.io/) - Interactive web framework
 - [Plotly](https://plotly.com/) - Data visualization
-- [GDELT](https://www.gdeltproject.org/) - Global event data
-- [USGS](https://www.usgs.gov/) - Earthquake monitoring
+- [GDELT](https://www.gdeltproject.org/) - Global event database
+- [USGS](https://earthquake.usgs.gov/) - Earthquake monitoring
 - [Python](https://python.org/) - Backend logic
-- [UV](https://github.com/astral-sh/uv) - Package management
-
-## Acknowledgments
-
-Special thanks to:
-- GDELT Project for global event monitoring
-- USGS for earthquake data
-- U.S. State Department for travel advisories
-- Streamlit team for the amazing framework
 
 ---
 
-**Status**: Production-Ready | **Version**: 1.0.0 | **Last Updated**: December 2025
+**Built for the Visaverse Hackathon 2024** 🏆
 
-*Preparedness when minutes matter. Stay safe, stay ready.* 
+*When minutes matter, your money moves first.*
