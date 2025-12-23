@@ -334,16 +334,105 @@ Document verification: SP-{datetime.now().strftime('%Y%m%d')}-AUTH
         # Emergency Phrases
         output.append("")
         output.append("=" * 60)
-        output.append("SECTION 2: EMERGENCY PHRASES")
+        output.append("SECTION 2: CURRENT SITUATION STATUS")
+        output.append("=" * 60)
+        output.append("")
+        output.append(f"📍 Your Location: {user_profile.current_location}")
+        if user_profile.exit_fund and user_profile.exit_fund.fallback_destinations:
+            fallback = user_profile.exit_fund.fallback_destinations[0]
+            output.append(f"✈️ Fallback: {fallback.city}, {fallback.country}")
+        output.append(f"💰 Exit Fund: ${user_profile.exit_fund.amount:,.0f} {user_profile.exit_fund.currency}" if user_profile.exit_fund else "No fund configured")
+        output.append("")
+        
+        # Add live network status
+        output.append("📡 NETWORK STATUS AT TIME OF GENERATION:")
+        output.append("─" * 40)
+        
+        # Get network status from session state if available
+        try:
+            import streamlit as st
+            if "chaos_simulator" in st.session_state:
+                networks = st.session_state.chaos_simulator.get_network_status()
+                for network, status in networks.items():
+                    icon = "✅" if status == "ONLINE" else "⚠️" if status in ["CONGESTED", "RESTRICTED"] else "❌"
+                    output.append(f"   {icon} {network.replace('_', ' ').title()}: {status}")
+            else:
+                output.append("   🏦 Banking: RESTRICTED (conflict zone)")
+                output.append("   💳 ATM: OFFLINE")
+                output.append("   ₿ Crypto: ONLINE")
+                output.append("   📱 Mobile Money: RESTRICTED")
+        except:
+            output.append("   🏦 Banking: RESTRICTED (conflict zone)")
+            output.append("   💳 ATM: OFFLINE")
+            output.append("   ₿ Crypto: ONLINE")
+            output.append("   📱 Mobile Money: RESTRICTED")
+        
+        output.append("")
+        output.append("⚠️ RECOMMENDED ACTION:")
+        output.append("   Based on current conditions, proceed to fallback destination")
+        output.append("   using CRYPTO payout method (banking infrastructure compromised)")
+        output.append("")
+        
+        # Emergency Phrases - prioritize local language
+        output.append("")
+        output.append("=" * 60)
+        output.append("SECTION 3: EMERGENCY PHRASES")
         output.append("=" * 60)
         output.append("")
         
+        # Determine priority languages based on user location
+        location_country = str(user_profile.current_location).lower()
+        priority_languages = ["English"]
+        
+        if "ukraine" in location_country or "kyiv" in location_country:
+            priority_languages = ["Ukrainian", "Russian", "English", "Polish"]
+        elif "turkey" in location_country or "istanbul" in location_country:
+            priority_languages = ["Turkish", "English", "Arabic"]
+        elif "japan" in location_country or "tokyo" in location_country:
+            priority_languages = ["Japanese", "English"]
+        elif "india" in location_country:
+            priority_languages = ["Hindi", "English"]
+        
+        # Add Ukrainian if not in dictionary
+        if "Ukrainian" not in CrisisPacketGenerator.EMERGENCY_PHRASES:
+            CrisisPacketGenerator.EMERGENCY_PHRASES["Ukrainian"] = {
+                "help": "Мені потрібна допомога!",
+                "emergency": "Це надзвичайна ситуація!",
+                "hospital": "Відвезіть мене до лікарні",
+                "embassy": "Мені потрібно зв'язатися з посольством",
+                "police": "Викличте поліцію",
+                "danger": "Я в небезпеці",
+            }
+            CrisisPacketGenerator.EMERGENCY_PHRASES["Polish"] = {
+                "help": "Potrzebuję pomocy!",
+                "emergency": "To jest nagły wypadek!",
+                "hospital": "Zabierzcie mnie do szpitala",
+                "embassy": "Muszę skontaktować się z ambasadą",
+                "police": "Zadzwońcie na policję",
+                "danger": "Jestem w niebezpieczeństwie",
+            }
+        
+        # Show priority languages first, then others
+        shown_languages = []
+        for language in priority_languages:
+            if language in CrisisPacketGenerator.EMERGENCY_PHRASES:
+                phrases = CrisisPacketGenerator.EMERGENCY_PHRASES[language]
+                output.append(f"【 {language} 】 ★ PRIORITY")
+                output.append("-" * 40)
+                for key, phrase in phrases.items():
+                    output.append(f"  {key.upper():12} → {phrase}")
+                output.append("")
+                shown_languages.append(language)
+        
+        output.append("--- Additional Languages ---")
+        output.append("")
         for language, phrases in CrisisPacketGenerator.EMERGENCY_PHRASES.items():
-            output.append(f"【 {language} 】")
-            output.append("-" * 40)
-            for key, phrase in phrases.items():
-                output.append(f"  {key.upper():12} → {phrase}")
-            output.append("")
+            if language not in shown_languages:
+                output.append(f"【 {language} 】")
+                output.append("-" * 40)
+                for key, phrase in phrases.items():
+                    output.append(f"  {key.upper():12} → {phrase}")
+                output.append("")
         
         # Standard Checklist
         output.append("=" * 60)

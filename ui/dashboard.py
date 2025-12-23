@@ -382,7 +382,7 @@ class TripPlanner:
         }
 
     @staticmethod
-    def show_trip_planner():
+    def show_trip_planner(fallback_city: str = "", fallback_country: str = ""):
         """Show trip planning interface"""
         st.subheader("✈️ Plan Your Trip")
 
@@ -391,11 +391,16 @@ class TripPlanner:
         col1, col2 = st.columns(2)
 
         with col1:
+            # Use fallback destination as default if provided
             destination_city = st.text_input(
-                "Destination City", placeholder="e.g., Mumbai, Tokyo, London"
+                "Destination City", 
+                value=fallback_city,
+                placeholder="e.g., Mumbai, Tokyo, London"
             )
             destination_country = st.text_input(
-                "Destination Country", placeholder="e.g., India, Japan, UK"
+                "Destination Country", 
+                value=fallback_country,
+                placeholder="e.g., India, Japan, UK"
             )
 
             start_date = st.date_input("Start Date")
@@ -472,11 +477,11 @@ class NotificationCenter:
 
         email_enabled = st.checkbox("Email Notifications", value=True)
         if email_enabled:
-            st.text_input("Email Address", placeholder="sarah@example.com")
+            st.text_input("Email Address", value="user@gmail.com")
 
         sms_enabled = st.checkbox("SMS Notifications", value=True)
         if sms_enabled:
-            st.text_input("Phone Number", placeholder="+1-555-0100")
+            st.text_input("Phone Number", value="+1-999-999-9999")
 
         push_enabled = st.checkbox("Push Notifications", value=True)
 

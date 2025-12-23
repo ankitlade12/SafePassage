@@ -19,25 +19,86 @@ class RealDataIntegration:
     def fetch_gdelt_events(
         self, location: Location, radius_km: int = 100
     ) -> List[RiskAlert]:
-        """Fetch recent events from GDELT (Global Database of Events, Language, and Tone)"""
+        """
+        Fetch real-time news monitoring data from GDELT GEO API.
+        Returns activity data as-is - higher activity = more news mentions.
+        """
         alerts = []
-
+        
         try:
-            # GDELT query for location
-            query = f"{location.city} {location.country}"
+            # Query GDELT for news activity near location
+            query_terms = "(protest OR unrest OR conflict OR violence OR crisis)"
+            location_query = f"{location.city} {location.country}"
+            
             params = {
-                "query": query,
-                "mode": "artlist",
-                "maxrecords": 10,
-                "format": "json",
+                "query": f"{query_terms} {location_query}",
+                "format": "geojson",
+                "timespan": "7d",
+                "maxpoints": 5,
             }
 
-            # Note: This is a simplified example - real implementation would parse GDELT data
-            # For demo, we'll use simulated data based on real structure
-            alerts.append(self._create_sample_gdelt_alert(location))
+            response = requests.get(
+                "https://api.gdeltproject.org/api/v2/geo/geo",
+                params=params,
+                timeout=10
+            )
 
-        except Exception as e:
-            # GDELT fetch error - using fallback data
+            if response.status_code == 200:
+                data = response.json()
+                features = data.get("features", [])
+                
+                for feature in features[:3]:
+                    props = feature.get("properties", {})
+                    coords = feature.get("geometry", {}).get("coordinates", [0, 0])
+                    
+                    event_name = props.get("name", "Unknown")
+                    event_count = props.get("count", 0)
+                    event_name_lower = event_name.lower()
+                    
+                    # Only include events that are in user's city/country
+                    user_country_lower = location.country.lower()
+                    user_city_lower = location.city.lower()
+                    
+                    is_in_user_location = (
+                        user_country_lower in event_name_lower or 
+                        user_city_lower in event_name_lower
+                    )
+                    
+                    if not is_in_user_location:
+                        continue
+                    
+                    # Calculate severity purely from activity volume (data-driven)
+                    # More mentions = higher activity = higher severity
+                    if event_count >= 500:
+                        severity = 8
+                    elif event_count >= 200:
+                        severity = 6
+                    elif event_count >= 100:
+                        severity = 4
+                    elif event_count >= 50:
+                        severity = 3
+                    else:
+                        severity = 2  # Background activity
+                    
+                    alert = RiskAlert(
+                        alert_id=f"gdelt_{hash(event_name) % 100000}",
+                        location=Location(
+                            city=event_name[:30],
+                            country=location.country,
+                            latitude=coords[1] if len(coords) > 1 else location.latitude,
+                            longitude=coords[0] if len(coords) > 0 else location.longitude,
+                        ),
+                        risk_type=RiskType.POLITICAL_UNREST,
+                        severity=severity,
+                        source="GDELT",
+                        timestamp=datetime.now(),
+                        title=f"News Activity: {event_name[:40]}",
+                        description=f"{event_count} news mentions in past 7 days",
+                        affected_radius_km=radius_km,
+                    )
+                    alerts.append(alert)
+
+        except Exception:
             pass
 
         return alerts
@@ -185,13 +246,33 @@ class EnhancedRiskMonitor:
     def get_nearby_alerts(
         self, location: Location, radius_km: float = 100
     ) -> List[RiskAlert]:
-        """Get alerts within radius"""
+        """Get alerts within radius OR country-wide alerts"""
         nearby = []
+        user_country_lower = location.country.lower()
+        
         for alert in self.active_alerts:
-            # Safety check: ensure alert is a RiskAlert object
-            if isinstance(alert, RiskAlert) and hasattr(alert, "location"):
-                if self._is_nearby(location, alert.location, radius_km):
-                    nearby.append(alert)
+            if not isinstance(alert, RiskAlert) or not hasattr(alert, "location"):
+                continue
+                
+            # Include if within geographic radius
+            if self._is_nearby(location, alert.location, radius_km):
+                nearby.append(alert)
+                continue
+            
+            # Also include country-wide alerts (travel advisories, country-level GDELT)
+            alert_country = alert.location.country.lower() if alert.location.country else ""
+            alert_city = alert.location.city.lower() if alert.location.city else ""
+            
+            is_same_country = (
+                user_country_lower in alert_country or 
+                user_country_lower in alert_city or
+                alert_country in user_country_lower
+            )
+            
+            # Include country-wide alerts from official sources
+            if is_same_country and alert.source in ["U.S. State Department", "GDELT"]:
+                nearby.append(alert)
+                
         return nearby
 
     def _is_nearby(self, loc1: Location, loc2: Location, radius_km: float) -> bool:

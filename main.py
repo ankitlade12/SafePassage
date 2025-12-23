@@ -104,14 +104,29 @@ st.markdown(
 )
 
 # Initialize session state - Force fresh profile
-if (
-    "user_profile" not in st.session_state
-    or st.session_state.user_profile.exit_fund is None
-):
+if "user_profile" not in st.session_state:
     profile = create_sample_profile()
     st.session_state.user_profile = profile
-    # Debug: verify exit fund exists
-    # Exit fund created successfully
+
+# Ensure exit fund ALWAYS exists (create one if missing)
+if st.session_state.user_profile.exit_fund is None:
+    from models import ExitFund, PayoutMethod, Location
+    fallback = Location("Athens", "Greece", 37.9838, 23.7275)
+    st.session_state.user_profile.exit_fund = ExitFund(
+        user_id=st.session_state.user_profile.user_id,
+        amount=5000.0,
+        currency="USD",
+        payout_methods=[
+            PayoutMethod.CRYPTO_WALLET,
+            PayoutMethod.WIRE_TRANSFER,
+            PayoutMethod.CASH_PICKUP,
+            PayoutMethod.MOBILE_MONEY,
+        ],
+        fallback_destinations=[fallback],
+        trusted_contacts=[],
+        status=FundStatus.ACTIVE,
+        created_at=datetime.now()
+    )
 
 # CRITICAL FIX: Reset exit fund status to ACTIVE if it was triggered
 if (
@@ -145,7 +160,11 @@ if "payout_transaction" not in st.session_state:
 
 # Hackathon Features Session State
 if "chaos_level" not in st.session_state:
-    st.session_state.chaos_level = 2  # Default low chaos
+    # Initialize with REAL risk level from API data
+    real_risk = st.session_state.risk_monitor.get_current_risk_level(
+        st.session_state.user_profile.current_location
+    )
+    st.session_state.chaos_level = real_risk  # Start with real data, user can override
 
 if "dead_man_switch" not in st.session_state:
     st.session_state.dead_man_switch = DeadManSwitch()
@@ -215,7 +234,7 @@ with st.sidebar:
 
         if st.button("💾 Save Profile", width="stretch"):
             from api.geocoding import get_coordinates
-            from models import Location
+            from models import Location, ExitFund, PayoutMethod
 
             # Update profile
             user.name = new_name
@@ -232,12 +251,30 @@ with st.sidebar:
                 fallback_city, fallback_country, fallback_lat, fallback_lon
             )
 
+            # Ensure exit fund exists and update it
             if user.exit_fund:
                 user.exit_fund.fallback_destinations = [fallback_location]
+            else:
+                # Create a new exit fund if it doesn't exist
+                user.exit_fund = ExitFund(
+                    amount=5000.0,
+                    currency="USD",
+                    payout_methods=[
+                        PayoutMethod.CRYPTO_WALLET,
+                        PayoutMethod.WIRE_TRANSFER,
+                        PayoutMethod.CASH_PICKUP,
+                        PayoutMethod.MOBILE_MONEY,
+                    ],
+                    fallback_destinations=[fallback_location],
+                    trusted_contacts=[],
+                )
 
             # IMPORTANT: Refresh risk monitor for new location
             monitor.active_alerts = []  # Clear old alerts
             monitor.refresh_all_data(user.current_location)
+            
+            # Update chaos level to reflect new location's real risk
+            st.session_state.chaos_level = monitor.get_current_risk_level(user.current_location)
 
             st.success("✅ Profile updated! Refreshing alerts for new location...")
             st.rerun()
@@ -276,37 +313,7 @@ with st.sidebar:
     st.markdown("### On-Chain Verification")
     BlockchainBadge.show_badge(st.session_state.proof_of_reserves)
 
-    st.markdown("---")
 
-    # Demo controls
-    st.header("🎬 Demo Controls")
-
-    if st.button("🚨 Trigger Crisis", width="stretch"):
-        st.session_state.crisis_triggered = True
-        # Simulate high-risk alert
-        from core.risk_monitor import RiskMonitor
-
-        temp_monitor = RiskMonitor()
-        temp_monitor.trigger_crisis_simulation(user.current_location)
-        st.session_state.risk_monitor.active_alerts.extend(temp_monitor.active_alerts)
-        st.rerun()
-
-    if st.button("🔄 Reset Demo", width="stretch"):
-        st.session_state.crisis_triggered = False
-        st.session_state.emergency_activated = False
-        st.session_state.payout_transaction = None
-        st.session_state.risk_monitor = EnhancedRiskMonitor()
-        st.session_state.risk_monitor.refresh_all_data(user.current_location)
-        if user.exit_fund:
-            user.exit_fund.status = FundStatus.ACTIVE
-        st.rerun()
-
-    if st.button("🔄 Refresh Data", width="stretch"):
-        with st.spinner("Fetching latest data..."):
-            monitor.refresh_all_data(user.current_location)
-            time.sleep(1)
-        st.success("✅ Data refreshed")
-        st.rerun()
 
 # Main tabs
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
@@ -322,9 +329,13 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
 
 # Tab 1: Dashboard with Enhanced Visuals
 with tab1:
-    # Chaos Slider (Hackathon Feature #1)
+    # Get real alerts for network status calculation
+    real_alerts = monitor.get_nearby_alerts(user.current_location, radius_km=500)
+    
+    # Chaos Slider (Hackathon Feature #1) - now uses real alerts for network status
     st.session_state.chaos_level = ChaosSliderUI.show_chaos_slider(
-        st.session_state.chaos_level
+        st.session_state.chaos_level,
+        alerts=real_alerts  # Pass real GDELT/USGS alerts
     )
     
     # Use chaos level to override risk for demo
@@ -443,8 +454,30 @@ with tab2:
     if not user.has_active_fund():
         st.error("⚠️ No active exit fund. Please set up an exit fund first.")
 
-        if st.button("Set Up Exit Fund Now"):
-            st.session_state.show_fund_wizard = True
+        if st.button("Set Up Exit Fund Now", type="primary"):
+            from models import ExitFund, PayoutMethod, Location
+            
+            # Get fallback location from profile or use default
+            fallback = Location("Athens", "Greece", 37.9838, 23.7275)
+            
+            # Create new exit fund
+            user.exit_fund = ExitFund(
+                user_id=user.user_id,
+                amount=5000.0,
+                currency="USD",
+                payout_methods=[
+                    PayoutMethod.CRYPTO_WALLET,
+                    PayoutMethod.WIRE_TRANSFER,
+                    PayoutMethod.CASH_PICKUP,
+                    PayoutMethod.MOBILE_MONEY,
+                ],
+                fallback_destinations=[fallback],
+                trusted_contacts=[],
+                status=FundStatus.ACTIVE,
+                created_at=datetime.now()
+            )
+            st.success("✅ Exit fund created! $5,000 USD ready for emergencies.")
+            st.rerun()
 
     elif st.session_state.emergency_activated and st.session_state.payout_transaction:
         st.success("✅ Emergency Protocol Activated!")
@@ -491,7 +524,7 @@ with tab2:
             else:
                 st.success(f"✅ Payout completed at {completed_time}")
 
-            st.balloons()
+
         elif transaction.status == "processing":
             st.info(f"⏳ Processing... {transaction.confirmation_code}")
             time.sleep(2)
@@ -802,7 +835,12 @@ with tab3:
 
 # Tab 4: Trip Planner
 with tab4:
-    TripPlanner.show_trip_planner()
+    # Pre-fill with user's fallback destination
+    fallback = user.exit_fund.fallback_destinations[0] if user.exit_fund and user.exit_fund.fallback_destinations else None
+    TripPlanner.show_trip_planner(
+        fallback_city=fallback.city if fallback else "",
+        fallback_country=fallback.country if fallback else ""
+    )
 
     st.markdown("---")
 
@@ -828,11 +866,18 @@ with tab5:
     st.markdown("---")
 
     # Feature #2: Alert Previews
-    AlertSimulator.show_alert_previews()
+    AlertSimulator.show_alert_previews(
+        f"{user.current_location.city}, {user.current_location.country}",
+        st.session_state.chaos_level
+    )
 
 # Tab 6: Enhanced Analytics
 with tab6:
-    EnhancedAnalytics.show_enhanced_analytics(user.current_location.city)
+    EnhancedAnalytics.show_enhanced_analytics(
+        user.current_location.city,
+        monitor.active_alerts,
+        st.session_state.chaos_level
+    )
 
 # Footer
 st.markdown("---")

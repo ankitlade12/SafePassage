@@ -78,7 +78,7 @@ class GuardianNetwork:
     
     def __init__(self, guardians: List[Guardian] = None):
         self.guardians = guardians or []
-        self.alert_threshold = 9  # Risk level to trigger alerts
+        self.alert_threshold = 7  # Risk level to trigger alerts (matches user preference)
     
     def add_guardian(self, name: str, phone: str, email: str) -> Guardian:
         """Add a new guardian"""
@@ -154,13 +154,12 @@ class ShadowBankingCode:
 class ShadowBankingMode:
     """Offline emergency fund access system"""
     
-    # Simulated partner network
+    # Partner network with realistic details
     PARTNER_AGENTS = [
-        {"name": "Western Union", "type": "Cash Agent", "locations": "150+ countries"},
-        {"name": "MoneyGram", "type": "Cash Agent", "locations": "200+ countries"},
-        {"name": "Ria Money Transfer", "type": "Cash Agent", "locations": "160+ countries"},
-        {"name": "WorldRemit", "type": "Digital + Cash", "locations": "130+ countries"},
-        {"name": "Local Exchange Partners", "type": "Crypto → Cash", "locations": "50+ cities"},
+        {"name": "Wise (TransferWise)", "type": "Digital Transfer", "locations": "80+ currencies, instant"},
+        {"name": "Western Union", "type": "Cash Pickup", "locations": "500K+ locations globally"},
+        {"name": "Binance P2P", "type": "Crypto → Local", "locations": "Available in Ukraine"},
+        {"name": "PrivatBank", "type": "Local ATM Network", "locations": "Ukraine & Poland"},
     ]
     
     def __init__(self):
@@ -233,31 +232,116 @@ class ChaosSimulator:
     
     CHAOS_LEVELS = {
         0: {"label": "Peace", "emoji": "🕊️", "description": "All systems normal"},
-        1: {"label": "Calm", "emoji": "😌", "description": "Minor tensions detected"},
-        2: {"label": "Uneasy", "emoji": "😐", "description": "Elevated monitoring"},
-        3: {"label": "Tense", "emoji": "😟", "description": "Diplomatic concerns"},
-        4: {"label": "Unstable", "emoji": "⚠️", "description": "Regional instability"},
-        5: {"label": "Concerning", "emoji": "🔶", "description": "Active protests"},
-        6: {"label": "Serious", "emoji": "🟠", "description": "Infrastructure at risk"},
-        7: {"label": "Severe", "emoji": "🔴", "description": "Banks restricting access"},
-        8: {"label": "Critical", "emoji": "🚨", "description": "Capital controls active"},
-        9: {"label": "Emergency", "emoji": "⛔", "description": "Evacuation recommended"},
-        10: {"label": "War", "emoji": "⚔️", "description": "Immediate evacuation required"},
+        1: {"label": "Low", "emoji": "🟢", "description": "Minor activity detected"},
+        2: {"label": "Low", "emoji": "🟢", "description": "Elevated monitoring"},
+        3: {"label": "Low", "emoji": "🟢", "description": "Some concerns noted"},
+        4: {"label": "Low", "emoji": "🟡", "description": "Regional news activity"},
+        5: {"label": "Moderate", "emoji": "🟡", "description": "Travel advisory active"},
+        6: {"label": "Moderate", "emoji": "🟡", "description": "Exercise caution advised"},
+        7: {"label": "High", "emoji": "🟠", "description": "Significant instability"},
+        8: {"label": "High", "emoji": "🔴", "description": "Capital controls possible"},
+        9: {"label": "Extreme", "emoji": "🚨", "description": "Evacuation recommended"},
+        10: {"label": "Extreme", "emoji": "⚔️", "description": "Immediate action required"},
     }
     
     def __init__(self):
         self.current_level = 2  # Default starting level
+        self.alerts = []  # Store real alerts for network effect calculation
     
     def set_level(self, level: int) -> None:
         """Set chaos level (0-10)"""
         self.current_level = max(0, min(10, level))
+    
+    def set_alerts(self, alerts: list) -> None:
+        """Set real alerts from GDELT/USGS/State Dept"""
+        self.alerts = alerts or []
     
     def get_level_info(self) -> dict:
         """Get current level information"""
         return self.CHAOS_LEVELS.get(self.current_level, self.CHAOS_LEVELS[5])
     
     def get_network_effects(self) -> dict:
-        """Get simulated network effects based on chaos level"""
+        """Get network effects - uses real alert data if available, otherwise based on level"""
+        # If we have real alerts, analyze them
+        if self.alerts:
+            return self._analyze_alerts_for_network_effects()
+        
+        # Otherwise, use level-based simulation
+        return self._get_level_based_effects()
+    def _analyze_alerts_for_network_effects(self) -> dict:
+        """
+        Realistic network status based on actual alert types and severity.
+        """
+        # Default: all networks online
+        status = {
+            "banking": "ONLINE",
+            "atm": "ONLINE",
+            "crypto": "ONLINE",
+            "mobile_money": "ONLINE",
+            "cash_pickup": "ONLINE",
+        }
+        
+        if not self.alerts:
+            return status
+        
+        for alert in self.alerts:
+            risk_type = getattr(alert, 'risk_type', None)
+            severity = getattr(alert, 'severity', 0)
+            description = getattr(alert, 'description', '').lower()
+            title = getattr(alert, 'title', '').lower()
+            
+            if not risk_type:
+                continue
+            
+            risk_value = risk_type.value if hasattr(risk_type, 'value') else str(risk_type)
+            
+            # NATURAL DISASTERS affect infrastructure
+            if 'natural' in risk_value or 'disaster' in risk_value or 'earthquake' in title:
+                if severity >= 7:
+                    status["atm"] = "OFFLINE"
+                    status["mobile_money"] = "RESTRICTED"
+                elif severity >= 5:
+                    status["atm"] = "CONGESTED"
+                    status["mobile_money"] = "CONGESTED"
+            
+            # PAYMENT DISRUPTIONS affect banking
+            if 'payment' in risk_value or 'disruption' in risk_value:
+                if severity >= 7:
+                    status["banking"] = "OFFLINE"
+                    status["atm"] = "OFFLINE"
+                elif severity >= 5:
+                    status["banking"] = "CONGESTED"
+            
+            # SECURITY THREATS / ARMED CONFLICT - HIGH SEVERITY (8+) affects networks
+            if 'security' in risk_value or 'conflict' in description or 'armed' in description:
+                if severity >= 9:
+                    # Level 4 "Do Not Travel" - severe impact
+                    status["banking"] = "RESTRICTED"
+                    status["atm"] = "OFFLINE"
+                    status["cash_pickup"] = "OFFLINE"
+                    status["mobile_money"] = "RESTRICTED"
+                elif severity >= 7:
+                    status["banking"] = "CONGESTED"
+                    status["atm"] = "RESTRICTED"
+                    status["cash_pickup"] = "CONGESTED"
+            
+            # POLITICAL UNREST at high severity
+            if 'political' in risk_value or 'unrest' in risk_value:
+                if severity >= 8:
+                    status["banking"] = "CONGESTED"
+                    status["atm"] = "CONGESTED"
+                    status["cash_pickup"] = "CONGESTED"
+        
+        # Crypto stays most resilient (only internet needed)
+        if status["banking"] == "OFFLINE":
+            status["crypto"] = "CONGESTED"  # Slight impact in extreme scenarios
+        else:
+            status["crypto"] = "ONLINE"
+        
+        return status
+    
+    def _get_level_based_effects(self) -> dict:
+        """Get simulated network effects based on chaos level (fallback)"""
         level = self.current_level
         
         if level <= 2:
@@ -292,3 +376,4 @@ class ChaosSimulator:
                 "mobile_money": "RESTRICTED",
                 "cash_pickup": "OFFLINE",
             }
+

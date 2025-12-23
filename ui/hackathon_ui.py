@@ -33,7 +33,7 @@ class ChaosSliderUI:
     """Interactive chaos level slider for demo"""
     
     @staticmethod
-    def show_chaos_slider(current_level: int = 2) -> int:
+    def show_chaos_slider(current_level: int = 2, alerts: list = None) -> int:
         """Display chaos slider and return selected level"""
         
         st.markdown("### 🎚 Risk Simulator")
@@ -47,12 +47,12 @@ class ChaosSliderUI:
             st.caption("Peace")
         
         with col2:
+            # Use session state directly to avoid widget key caching issues
             level = st.slider(
                 "Chaos Level",
                 min_value=0,
                 max_value=10,
                 value=current_level,
-                key="chaos_slider",
                 label_visibility="collapsed"
             )
         
@@ -63,6 +63,11 @@ class ChaosSliderUI:
         # Get level info
         simulator = ChaosSimulator()
         simulator.set_level(level)
+        
+        # Pass real alerts to simulator for network effect calculation
+        if alerts:
+            simulator.set_alerts(alerts)
+        
         info = simulator.get_level_info()
         
         # Display current status
@@ -79,7 +84,7 @@ class ChaosSliderUI:
             unsafe_allow_html=True
         )
         
-        # Show network effects
+        # Show network effects (now based on real alerts if available)
         effects = simulator.get_network_effects()
         ChaosSliderUI._show_network_effects(effects)
         
@@ -315,12 +320,17 @@ class DeadManSwitchWidget:
         col1, col2 = st.columns([2, 1])
         
         with col1:
+            was_enabled = switch.enabled
             enabled = st.toggle(
                 "Enable Dead Man's Switch",
                 value=switch.enabled,
                 key="dms_toggle"
             )
             switch.enabled = enabled
+            
+            # Reset check-in timer when first enabled
+            if enabled and not was_enabled:
+                switch.check_in()  # Start fresh timer
             
             if enabled:
                 interval = st.select_slider(
@@ -426,7 +436,7 @@ class GuardianWidget:
                 
                 with col1:
                     new_name = st.text_input("Name", key="new_guardian_name")
-                    new_phone = st.text_input("Phone", key="new_guardian_phone", placeholder="+1-555-0123")
+                    new_phone = st.text_input("Phone", key="new_guardian_phone")
                 
                 with col2:
                     new_email = st.text_input("Email", key="new_guardian_email")
