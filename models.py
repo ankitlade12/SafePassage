@@ -208,26 +208,28 @@ class EmergencyActivation:
 
 # Sample data for demo
 def create_sample_profile() -> UserProfile:
-    """Create sample user profile"""
-    istanbul = Location(
-        city="Istanbul",
-        country="Turkey",
-        latitude=41.0082,
-        longitude=28.9784
+    """Create sample user profile with high-risk location for impactful demo"""
+    # HIGH-RISK current location for demo impact
+    kyiv = Location(
+        city="Kyiv",
+        country="Ukraine",
+        latitude=50.4501,
+        longitude=30.5234
     )
     
-    athens = Location(
-        city="Athens",
-        country="Greece",
-        latitude=37.9838,
-        longitude=23.7275
+    # SAFE fallback destination
+    lisbon = Location(
+        city="Lisbon",
+        country="Portugal",
+        latitude=38.7223,
+        longitude=-9.1393
     )
     
     contacts = [
         Contact(
             name="John Smith",
             relationship="Emergency Contact",
-            phone="+1-555-0123",
+            phone="+1-999-999-9999",
             email="john@example.com"
         )
     ]
@@ -243,7 +245,7 @@ def create_sample_profile() -> UserProfile:
             PayoutMethod.MOBILE_MONEY
         ],
         trusted_contacts=contacts,
-        fallback_destinations=[athens],
+        fallback_destinations=[lisbon],
         status=FundStatus.ACTIVE,
         created_at=datetime.now()
     )
@@ -251,9 +253,9 @@ def create_sample_profile() -> UserProfile:
     return UserProfile(
         user_id="user_001",
         name="Sarah Johnson",
-        email="sarah@example.com",
-        phone="+1-555-0100",
-        current_location=istanbul,
+        email="user@gmail.com",
+        phone="+1-999-999-9999",
+        current_location=kyiv,
         home_country="United States",
         passport_country="United States",
         notification_preferences={

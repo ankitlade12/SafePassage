@@ -112,13 +112,14 @@ class AlertSimulator:
         <div style="font-family: Arial, sans-serif; max-width: 600px; border: 2px solid {severity_color}; padding: 20px; border-radius: 10px; background-color: #f9f9f9;">
             <h2 style="color: {severity_color}; margin-top: 0;">🚨 Safe-Passage Alert</h2>
             <div style="background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                <p style="margin: 5px 0;"><strong>Alert Type:</strong> {alert_type}</p>
-                <p style="margin: 5px 0;"><strong>Location:</strong> {location}</p>
-                <p style="margin: 5px 0;"><strong>Severity:</strong> <span style="color: {severity_color}; font-weight: bold;">{severity}/10</span></p>
-                <p style="margin: 5px 0;"><strong>Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+                <p style="margin: 5px 0; color: #333;"><strong style="color: #333;">Alert Type:</strong> {alert_type}</p>
+                <p style="margin: 5px 0; color: #333;"><strong style="color: #333;">Location:</strong> {location}</p>
+                <p style="margin: 5px 0; color: #333;"><strong style="color: #333;">Severity:</strong> <span style="color: {severity_color}; font-weight: bold;">{severity}/10</span></p>
+                <p style="margin: 5px 0; color: #333;"><strong style="color: #333;">Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
             </div>
-            <p>A risk alert has been detected in your area. Please review your Safe-Passage dashboard for details and consider activating your emergency protocol if necessary.</p>
-            <a href="#" style="background-color: {severity_color}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 15px; font-weight: bold;">View Dashboard →</a>
+            <p style="color: #333;">A risk alert has been detected in your area. Please review your Safe-Passage dashboard for details and consider activating your emergency protocol if necessary.</p>
+            <div style="background-color: {severity_color}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 15px; font-weight: bold; cursor: pointer;">View Dashboard →</div>
+            <p style="font-size: 11px; color: #999; margin-top: 10px; font-style: italic;">↑ This is a preview - in real emails, this button links to your dashboard</p>
             <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
             <p style="font-size: 12px; color: #666;">Safe-Passage Emergency Liquidity System | Do not reply to this email</p>
         </div>
@@ -132,7 +133,7 @@ class AlertSimulator:
         return f"{emoji} Safe-Passage Alert: {alert_type} in {location}. Severity: {severity}/10. Check dashboard: safepassage.app/dashboard"
 
     @staticmethod
-    def show_alert_previews():
+    def show_alert_previews(user_location: str = "Istanbul, Turkey", risk_level: int = 6):
         """Show alert preview interface"""
         st.subheader("📧 Alert Notifications Preview")
         st.write("Customize and preview how you'll receive emergency alerts")
@@ -150,10 +151,12 @@ class AlertSimulator:
                     "Weather Emergency",
                 ],
             )
-            location = st.text_input("Location", value="Dallas, USA")
+            # Use user's actual location as default
+            location = st.text_input("Location", value=user_location)
 
         with col2:
-            severity = st.slider("Severity Level", 1, 10, 7)
+            # Use actual risk level as default
+            severity = st.slider("Severity Level", 1, 10, risk_level)
             notification_type = st.radio("Preview Type", ["Email", "SMS", "Both"])
 
         st.markdown("---")
@@ -174,7 +177,6 @@ class AlertSimulator:
 
         if st.button("🧪 Send Test Alert", width="stretch"):
             st.success("✅ Test alert sent successfully! (Simulated)")
-            st.balloons()
 
 
 # ============================================================================
@@ -191,14 +193,26 @@ class EmergencyWidget:
         st.sidebar.markdown("---")
         st.sidebar.subheader("🆘 Emergency Contacts")
 
-        # SOS Button
-        if st.sidebar.button("🚨 SOS - ACTIVATE NOW", width="stretch", type="primary"):
-            st.sidebar.warning(
-                "⚠️ Are you sure? This will activate your emergency protocol."
-            )
-            if st.sidebar.button("✅ Yes, Activate Emergency", width="stretch"):
-                st.session_state.emergency_activated = True
-                st.sidebar.success("Emergency activated! Go to Emergency tab.")
+        # SOS Button - uses session state for proper confirmation flow
+        if "sos_confirm" not in st.session_state:
+            st.session_state.sos_confirm = False
+            
+        if not st.session_state.sos_confirm:
+            if st.sidebar.button("🚨 SOS - ACTIVATE NOW", width="stretch", type="primary"):
+                st.session_state.sos_confirm = True
+                st.rerun()
+        else:
+            st.sidebar.warning("⚠️ Are you sure? This will activate your emergency protocol.")
+            col1, col2 = st.sidebar.columns(2)
+            with col1:
+                if st.button("✅ Yes", width="stretch"):
+                    st.session_state.emergency_activated = True
+                    st.session_state.sos_confirm = False
+                    st.rerun()
+            with col2:
+                if st.button("❌ No", width="stretch"):
+                    st.session_state.sos_confirm = False
+                    st.rerun()
 
         # Quick dial contacts
         with st.sidebar.expander("📞 Quick Dial"):
@@ -212,9 +226,25 @@ class EmergencyWidget:
                 st.write(f"**👤 {contact.name}**")
                 st.code(contact.phone)
 
-            # Local emergency
+            # Local emergency - dynamic based on user's country
+            country = user_profile.current_location.country.lower() if user_profile.current_location else "usa"
+            emergency_numbers = {
+                "ukraine": "112 / 103 (Ukraine)",
+                "turkey": "112 (Turkey)",
+                "usa": "911 (USA)",
+                "united states": "911 (USA)",
+                "uk": "999 (UK)",
+                "united kingdom": "999 (UK)",
+                "portugal": "112 (Portugal)",
+                "greece": "112 (Greece)",
+                "germany": "112 (Germany)",
+                "france": "112 (France)",
+                "japan": "110 / 119 (Japan)",
+                "india": "112 (India)",
+            }
+            local_emergency = emergency_numbers.get(country, "112 (International)")
             st.write("**🚑 Local Emergency**")
-            st.code("911 (USA)")
+            st.code(local_emergency)
 
 
 # ============================================================================

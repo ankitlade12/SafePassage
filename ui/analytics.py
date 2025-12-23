@@ -231,8 +231,8 @@ class AnalyticsDashboard:
         return fig
 
     @staticmethod
-    def show_enhanced_analytics(user_location_city="Dallas"):
-        """Show complete enhanced analytics dashboard"""
+    def show_enhanced_analytics(user_location_city="Dallas", alerts=None, risk_level=2):
+        """Show complete enhanced analytics dashboard with real data"""
 
         st.subheader("📊 Enhanced Analytics Dashboard")
 
@@ -241,8 +241,11 @@ class AnalyticsDashboard:
 
         today = datetime.now()
         days_since_signup = (today - datetime(2025, 12, 1)).days
+        
+        # Use actual alerts if provided
+        actual_alert_count = len(alerts) if alerts else 0
 
-        # Key metrics - realistic based on user's actual usage
+        # Key metrics - USE REAL DATA
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
@@ -252,19 +255,23 @@ class AnalyticsDashboard:
                 delta=f"{min(days_since_signup, 7)} this week",
             )
         with col2:
-            # Realistic alert count based on days monitored
-            total_alerts = days_since_signup * 2  # ~2 alerts per day
+            # Use actual alert count
             st.metric(
-                "Total Alerts",
-                str(total_alerts),
-                delta=f"+{min(total_alerts, 14)} this week",
+                "Active Alerts",
+                str(actual_alert_count),
+                delta=f"from {user_location_city}",
             )
         with col3:
-            st.metric("Avg Risk Level", "2.1/10", delta="-0.3")  # Dallas is low risk
+            # Use actual risk level
+            st.metric(
+                "Current Risk", 
+                f"{risk_level}/10", 
+                delta="Live data" if actual_alert_count > 0 else "Baseline"
+            )
         with col4:
             st.metric(
-                "Emergency Activations", "0", delta="0 today"
-            )  # Realistic - no emergencies yet
+                "Emergency Activations", "0", delta="None triggered"
+            )
 
         st.markdown("---")
 
@@ -276,23 +283,6 @@ class AnalyticsDashboard:
             key="risk_heatmap",
         )
 
-        # Charts row
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.plotly_chart(
-                AnalyticsDashboard.create_alert_frequency_chart(),
-                width="stretch",
-                key="alert_frequency",
-            )
-
-        with col2:
-            st.plotly_chart(
-                AnalyticsDashboard.create_payout_method_stats(),
-                width="stretch",
-                key="payout_stats",
-            )
-
         # Journey timeline with user's location
         st.markdown("### 📅 Your Journey")
         st.plotly_chart(
@@ -301,26 +291,27 @@ class AnalyticsDashboard:
             key="journey_timeline",
         )
 
-        # Alert history table - realistic recent alerts
+        # Real alert history table
         st.markdown("### 📋 Recent Alerts")
 
-        # Generate realistic alerts for user's location
-        alert_data = {
-            "Date": [
-                today.strftime("%Y-%m-%d"),
-                (today - timedelta(days=1)).strftime("%Y-%m-%d"),
-                (today - timedelta(days=3)).strftime("%Y-%m-%d"),
-                (today - timedelta(days=7)).strftime("%Y-%m-%d"),
-            ],
-            "Location": [
-                f"{user_location_city}, USA",
-                f"{user_location_city}, USA",
-                "Mumbai, India",
-                f"{user_location_city}, USA",
-            ],
-            "Type": ["Weather", "Traffic", "Political", "Weather"],
-            "Severity": [3, 2, 4, 2],
-            "Status": ["Resolved", "Resolved", "Monitoring", "Resolved"],
-        }
+        if alerts and len(alerts) > 0:
+            # Use actual alerts
+            alert_data = {
+                "Date": [],
+                "Location": [],
+                "Type": [],
+                "Severity": [],
+                "Source": [],
+            }
+            
+            for alert in alerts[:5]:  # Show up to 5 recent alerts
+                alert_data["Date"].append(alert.timestamp.strftime("%Y-%m-%d %H:%M") if hasattr(alert, 'timestamp') else today.strftime("%Y-%m-%d"))
+                alert_data["Location"].append(f"{alert.location.city}, {alert.location.country}" if hasattr(alert, 'location') else user_location_city)
+                alert_data["Type"].append(alert.risk_type.value if hasattr(alert, 'risk_type') and hasattr(alert.risk_type, 'value') else "Unknown")
+                alert_data["Severity"].append(f"{alert.severity}/10" if hasattr(alert, 'severity') else "N/A")
+                alert_data["Source"].append(alert.source if hasattr(alert, 'source') else "Unknown")
+            
+            st.dataframe(alert_data, width="stretch")
+        else:
+            st.success("✅ No active alerts - your area is currently safe")
 
-        st.dataframe(alert_data, width="stretch")
