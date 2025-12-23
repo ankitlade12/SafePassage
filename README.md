@@ -54,7 +54,7 @@ graph LR
 
 ```mermaid
 graph TB
-    UI["🖥️ STREAMLIT UI<br/>Dashboard | Emergency | Audit Trail<br/>Trip Planner | Settings | Analytics"]
+    UI["STREAMLIT UI<br/>Dashboard | Emergency | Audit Trail<br/>Trip Planner | Settings | Analytics"]
     
     subgraph "CORE ENGINE"
         RM["risk_monitor.py<br/>Real-Time Alerts"]
@@ -119,22 +119,22 @@ Safe-Passage is a **Tactical Financial Resiliency System** that ensures traveler
 ## The Problem
 
 When crisis hits abroad:
-- ❌ ATMs shut down or run out of cash
-- ❌ Banks close for "holidays" during unrest
-- ❌ Wire transfers take 3-5 business days
-- ❌ Credit cards get declined due to fraud alerts
-- ❌ Mobile networks go offline
-- ❌ You're stuck with no access to your money
+- ATMs shut down or run out of cash
+- Banks close for "holidays" during unrest
+- Wire transfers take 3-5 business days
+- Credit cards get declined due to fraud alerts
+- Mobile networks go offline
+- You're stuck with no access to your money
 
 ## The Solution
 
 Safe-Passage provides:
-- ✅ **$5,000 pre-funded exit vault** with multiple payout methods
-- ✅ **Real-time risk monitoring** from global event databases
-- ✅ **Liquidity Oracle** that routes funds through working channels
-- ✅ **Offline backup** with Shadow Banking QR codes
-- ✅ **Automated safety net** with Dead Man's Switch
-- ✅ **Social recovery** via Guardian Network
+- **$5,000 pre-funded exit vault** with multiple payout methods
+- **Real-time risk monitoring** from global event databases
+- **Liquidity Oracle** that routes funds through working channels
+- **Offline backup** with Shadow Banking QR codes
+- **Automated safety net** with Dead Man's Switch
+- **Social recovery** via Guardian Network
 
 ## Features
 
@@ -338,7 +338,7 @@ sequenceDiagram
     
     GDELT->>SafePassage: Alert: Civil unrest in Istanbul
     SafePassage->>SafePassage: Risk level → 8/10
-    SafePassage-->>User: 🚨 HIGH RISK DETECTED
+    SafePassage-->>User: HIGH RISK DETECTED
     
     User->>SafePassage: View emergency options
     SafePassage->>Oracle: Get recommendations
@@ -348,7 +348,7 @@ sequenceDiagram
     User->>SafePassage: Select Crypto Wallet
     SafePassage->>Crypto: Initiate $5,000 USDC transfer
     Crypto-->>SafePassage: TxID: 0x7a8b...
-    SafePassage-->>User: ✅ Confirmed in 3 minutes
+    SafePassage-->>User: Confirmed in 3 minutes
     
     SafePassage->>SafePassage: Log to Audit Trail
     Note over SafePassage: "Rerouted from Wire to Crypto<br/>due to Civil Unrest signal > 7.5"
@@ -389,27 +389,27 @@ visaverse/
 
 | Feature | Travel Risk Apps<br/>(International SOS) | Neobanks<br/>(Revolut, Wise) | Safe-Passage |
 |---------|-------------------------------------------|------------------------------|--------------|
-| Real-time Alerts | ✅ GDELT/Internal | ❌ | ✅ GDELT/USGS |
-| Emergency Funds | ❌ (requires claim) | ❌ (standard balance) | ✅ $5,000 Vault |
-| Liquidity Oracle | ❌ | ❌ | ✅ AI-ranked methods |
-| Crisis Simulation | ❌ | ❌ | ✅ Chaos Slider |
-| Network Resiliency | Human advice only | None (goes offline) | ✅ Auto crypto routing |
-| Offline Backup | ❌ | ❌ | ✅ Shadow Banking |
-| Dead Man's Switch | ❌ | ❌ | ✅ Timer-based payout |
-| Guardian Network | ❌ | ❌ | ✅ Multi-sig contacts |
+| Real-time Alerts | Yes | No | Yes |
+| Emergency Funds | No | No | Yes |
+| Liquidity Oracle | No | No | Yes |
+| Crisis Simulation | No | No | Yes |
+| Network Resiliency | Human advice only | None | Yes |
+| Offline Backup | No | No | Yes |
+| Dead Man's Switch | No | No | Yes |
+| Guardian Network | No | No | Yes |
 
 **Your Unfair Advantage:** Safe-Passage is the "Waze for Money" in a crisis - while others tell you there's a traffic jam, we're already rerouting your funds through the only open digital highway.
 
 ## Use Cases
 
 ### Perfect For:
-- 🌍 **Expats** - Living in politically unstable regions
-- ✈️ **Business Travelers** - Frequent trips to emerging markets
-- 📰 **Journalists** - Covering conflict zones
-- 🏥 **Aid Workers** - Operating in crisis regions
-- 🎒 **Digital Nomads** - Working from anywhere
-- 🏛️ **Diplomats** - Embassy staff in high-risk postings
-- 🔬 **Researchers** - Fieldwork in remote areas
+- **Expats** - Living in politically unstable regions
+- **Business Travelers** - Frequent trips to emerging markets
+- **Journalists** - Covering conflict zones
+- **Aid Workers** - Operating in crisis regions
+- **Digital Nomads** - Working from anywhere
+- **Diplomats** - Embassy staff in high-risk postings
+- **Researchers** - Fieldwork in remote areas
 
 ## Hackathon Innovation
 
@@ -504,6 +504,6 @@ Built with:
 
 ---
 
-**Built for the Visaverse Hackathon 2024** 🏆
+**Built for the Visaverse Hackathon 2024**
 
 *When minutes matter, your money moves first.*
