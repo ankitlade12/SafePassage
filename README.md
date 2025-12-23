@@ -13,8 +13,8 @@
 - **Proof of Reserves**: Simulated on-chain verification of your $5,000 exit fund
 - **Dead Man's Switch**: Timer-based check-in triggers auto-payout if you go dark
 - **Guardian Network**: Multi-sig safety with trusted contacts
-- **Shadow Banking Mode**: Offline QR codes when internet/banks fail
-- **Crisis Packet**: 10-language emergency phrases for local authorities
+- **Shadow Banking Mode**: Offline QR codes when internet/banks fail with a realistic partner network
+- **Crisis Packet**: Dynamic, location-aware emergency phrases and authority messages
 
 ## Architecture Overview
 
@@ -161,24 +161,24 @@ If no check-in within 24h during high-risk → Auto-trigger emergency payout
 When risk > 9/10 → Notify all active guardians
 ```
 - Add up to 3 trusted contacts
-- Auto-notification on critical risk
-- Multi-sig approval capability
+- Auto-notification on critical risk (Threshold: 7/10)
+- Multi-sig approval simulation
 
 #### 3. Shadow Banking Mode
 ```
 Internet down? → Generate offline QR code → Redeem at partner location
 ```
 - One-time-use verification codes
-- Partner network (Western Union, MoneyGram, LocalBitcoins)
-- Works without internet
+- Realistic Partner network (Wise, Western Union, Binance P2P, PrivatBank)
+- Specific localization for high-risk zones (e.g., Ukraine, Turkey)
 
 #### 4. Crisis Packet
 ```
 Download → 10-language emergency phrases → Show to authorities
 ```
-- Emergency phrases in 10 languages
-- Pre-written help message for local authorities
-- Offline route summary
+- Location-aware Phrases: Priorities based on your current location (e.g., Ukrainian/Polish for Kyiv)
+- Pre-written help message for local authorities with dynamic profile data
+- Dynamic Situation Status: Real-time network health and recommended actions
 
 #### 5. Proof of Reserves
 ```
@@ -239,7 +239,7 @@ streamlit run main.py
 3. **Audit Trail** - See Oracle decision reasoning
 4. **Trip Planner** - Compare destinations by risk
 5. **Settings** - Configure Guardian Network and alerts
-6. **Analytics** - Historical risk trends
+6. **Analytics** - Real-time statistics and historical alert data
 
 ## How It Works
 
@@ -277,8 +277,8 @@ Check each payment rail → ONLINE / CONGESTED / RESTRICTED / OFFLINE
 |------------|---------|-----|--------|--------------|-------------|
 | 0-3 | ONLINE | ONLINE | ONLINE | ONLINE | ONLINE |
 | 4-6 | CONGESTED | CONGESTED | ONLINE | ONLINE | CONGESTED |
-| 7-8 | RESTRICTED | OFFLINE | ONLINE | ONLINE | RESTRICTED |
-| 9-10 | OFFLINE | OFFLINE | ONLINE | RESTRICTED | OFFLINE |
+| 7-10 | RESTRICTED | OFFLINE | ONLINE | RESTRICTED | OFFLINE |
+*(Note: Conflict zones now automatically trigger RESTRICTED/OFFLINE status for traditional rails)*
 
 ### Step 4: Payout Execution
 ```
